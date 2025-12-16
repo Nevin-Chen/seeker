@@ -10,9 +10,36 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_12_10_205838) do
+ActiveRecord::Schema[8.1].define(version: 2025_12_11_224107) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
+
+  create_table "price_alerts", force: :cascade do |t|
+    t.boolean "active", default: true, null: false
+    t.datetime "created_at", null: false
+    t.datetime "last_notified_at"
+    t.bigint "product_id", null: false
+    t.decimal "target_price", precision: 10, scale: 2, null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["product_id"], name: "index_price_alerts_on_product_id"
+    t.index ["user_id", "product_id"], name: "index_price_alerts_on_user_id_and_product_id", unique: true
+    t.index ["user_id"], name: "index_price_alerts_on_user_id"
+  end
+
+  create_table "products", force: :cascade do |t|
+    t.string "check_status", default: "pending"
+    t.datetime "created_at", null: false
+    t.decimal "current_price", precision: 10, scale: 2
+    t.datetime "last_checked_at"
+    t.string "name", null: false
+    t.string "sku"
+    t.datetime "updated_at", null: false
+    t.string "url", null: false
+    t.index ["last_checked_at"], name: "index_products_on_last_checked_at"
+    t.index ["sku"], name: "index_products_on_sku"
+    t.index ["url"], name: "index_products_on_url", unique: true
+  end
 
   create_table "sessions", force: :cascade do |t|
     t.datetime "created_at", null: false
@@ -34,5 +61,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_10_205838) do
     t.index ["username"], name: "index_users_on_username"
   end
 
+  add_foreign_key "price_alerts", "products"
+  add_foreign_key "price_alerts", "users"
   add_foreign_key "sessions", "users"
 end

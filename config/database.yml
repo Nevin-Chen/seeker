@@ -9,11 +9,11 @@ default: &default
 
 development:
   <<: *default
-  database: <%= ENV["DB_NAME"] %>
+  database: seeker_development
 
 test:
   <<: *default
-  database: <%= ENV["DB_NAME_TEST"] %>
+  database: seeker_development_test
 
 production:
   primary:
