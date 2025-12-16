@@ -2,6 +2,9 @@ class User < ApplicationRecord
   has_secure_password
   has_many :sessions, dependent: :destroy
 
+  has_many :price_alerts, dependent: :destroy
+  has_many :products, through: :price_alerts
+
   validates :username, presence: true
   validates :email_address, presence: true,
                             uniqueness: true,
