@@ -37,6 +37,8 @@ gem "image_processing", "~> 1.2"
 
 gem "pg", "~> 1.5"
 
+gem "tailwindcss-rails", "~> 4.4"
+
 gem "dotenv-rails", groups: [ :development, :test ]
 
 group :development, :test do
