@@ -14,4 +14,10 @@ Rails.application.routes.draw do
   resources :products, only: [ :index, :show, :new, :create ] do
     resources :price_alerts, only: [ :create ]
   end
+
+  resources :price_alerts, only: [ :destroy ] do
+    member do
+      patch :toggle
+    end
+  end
 end
