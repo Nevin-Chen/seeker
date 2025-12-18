@@ -10,7 +10,7 @@ class SessionsController < ApplicationController
       start_new_session_for user
       redirect_to after_authentication_url
     else
-      redirect_to login_path, alert: "Try another email address or password."
+      redirect_to login_path, alert: "Invalid email address or password."
     end
   end
 
