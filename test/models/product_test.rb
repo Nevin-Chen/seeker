@@ -31,6 +31,38 @@ class ProductTest < ActiveSupport::TestCase
     refute product.valid?
   end
 
+  test "invalid with non-http url" do
+    product = Product.new(
+      name: "Test Product",
+      url: "javascript:alert('xss')"
+    )
+    refute product.valid?
+  end
+
+  test "invalid with file url" do
+    product = Product.new(
+      name: "Test Product",
+      url: "file:///etc/passwd"
+    )
+    refute product.valid?
+  end
+
+  test "valid with http url" do
+    product = Product.new(
+      name: "Test Product",
+      url: "http://example.com/product"
+    )
+    assert product.valid?
+  end
+
+  test "valid with https url" do
+    product = Product.new(
+      name: "Test Product",
+      url: "https://example.com/product"
+    )
+    assert product.valid?
+  end
+
   test "stale? returns true when never checked" do
     product = Product.create!(name: "Test", url: "https://seeker.com/test")
     assert product.stale?
