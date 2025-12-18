@@ -1,0 +1,101 @@
+<div class="mb-6">
+  <%= link_to products_path, class: "text-blue-600 hover:text-blue-800" do %>
+    ← Back to Products
+  <% end %>
+</div>
+
+<div class="bg-white shadow-sm rounded-lg p-6 mb-6">
+  <h1 class="text-3xl font-bold text-gray-900 mb-4"><%= @product.name %></h1>
+
+  <div class="space-y-3 mb-6">
+    <p class="text-sm">
+      <span class="font-medium text-gray-700">URL:</span>
+      <%= link_to truncate(@product.url, length: 80), @product.url,
+                  target: "_blank",
+                  class: "text-blue-600 hover:text-blue-800 break-all" %>
+    </p>
+
+    <% if @product.sku.present? %>
+      <p class="text-sm">
+        <span class="font-medium text-gray-700">SKU:</span>
+        <span class="text-gray-900"><%= @product.sku %></span>
+      </p>
+    <% end %>
+  </div>
+
+  <% if @product.current_price %>
+    <div class="border-t pt-4">
+      <p class="text-sm text-gray-500 mb-2">Current Price</p>
+      <p class="text-4xl font-bold text-green-600">
+        $<%= number_with_precision(@product.current_price, precision: 2) %>
+      </p>
+      <p class="text-sm text-gray-500 mt-2">
+        Last checked <%= time_ago_in_words(@product.last_checked_at) %> ago
+      </p>
+    </div>
+  <% else %>
+    <div class="border-t pt-4">
+      <p class="text-gray-500 italic">Price not yet checked</p>
+    </div>
+  <% end %>
+</div>
+
+<div class="bg-white shadow-sm rounded-lg p-6">
+  <% if @price_alert %>
+    <h2 class="text-xl font-bold text-gray-900 mb-4">Your Price Alert</h2>
+
+    <div class="space-y-3 mb-6">
+      <p class="text-sm">
+        <span class="font-medium text-gray-700">Target Price:</span>
+        <span class="text-gray-900 text-lg">$<%= number_with_precision(@price_alert.target_price, precision: 2) %></span>
+      </p>
+
+      <p class="text-sm">
+        <span class="font-medium text-gray-700">Status:</span>
+        <% if @price_alert.active? %>
+          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+            ✓ Active
+          </span>
+        <% else %>
+          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+            ⏸ Inactive
+          </span>
+        <% end %>
+      </p>
+    </div>
+
+    <% if @price_alert.price_dropped? %>
+      <div class="bg-green-50 border border-green-200 rounded-md p-4 mb-6">
+        <p class="text-green-800 font-medium">🎉 Price has dropped to your target!</p>
+      </div>
+    <% end %>
+
+    <div class="flex space-x-3">
+      <%= button_to toggle_price_alert_path(@price_alert),
+                    method: :patch,
+                    class: "bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition" do %>
+        <%= @price_alert.active? ? 'Deactivate' : 'Activate' %> Alert
+      <% end %>
+
+      <%= button_to price_alert_path(@price_alert),
+                    method: :delete,
+                    data: { confirm: "Are you sure?" },
+                    class: "bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition" do %>
+        Delete Alert
+      <% end %>
+    </div>
+  <% else %>
+    <h2 class="text-xl font-bold text-gray-900 mb-4">Create Price Alert</h2>
+
+    <%= form_with model: @new_alert, url: product_price_alerts_path(@product) do |f| %>
+      <div class="mb-4">
+        <%= f.label :target_price, "Alert me when price drops to:", class: "block text-sm font-medium text-gray-700 mb-2" %>
+        <%= f.number_field :target_price, step: 0.01, required: true,
+                           placeholder: "99.99",
+                           class: "w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 max-w-xs" %>
+      </div>
+
+      <%= f.submit "Create Alert", class: "bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 transition cursor-pointer" %>
+    <% end %>
+  <% end %>
+</div>

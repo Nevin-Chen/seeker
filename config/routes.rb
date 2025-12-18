@@ -10,4 +10,8 @@ Rails.application.routes.draw do
   delete "logout", to: "sessions#destroy"
 
   resources :passwords, param: :token
+
+  resources :products, only: [ :index, :show, :new, :create ] do
+    resources :price_alerts, only: [ :create ]
+  end
 end
