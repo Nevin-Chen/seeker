@@ -1,0 +1,17 @@
+one:
+  product: one
+  user: one
+  target_price: 150.00
+  active: true
+
+two:
+  product: two
+  user: one
+  target_price: 550.00
+  active: true
+
+above_target_alert:
+  product: two
+  user: two
+  target_price: 400.00
+  active: true

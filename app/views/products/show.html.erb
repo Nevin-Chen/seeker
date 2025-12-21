@@ -10,7 +10,7 @@
   <div class="space-y-3 mb-6">
     <p class="text-sm">
       <span class="font-medium text-gray-700">URL:</span>
-      <%= link_to truncate(product_url, length: 80), safe_product_url(@product),
+      <%= link_to safe_product_url(@product), safe_product_url(@product),
                   target: "_blank",
                   rel: "noopener noreferrer",
                   class: "text-blue-600 hover:text-blue-800 break-all" %>

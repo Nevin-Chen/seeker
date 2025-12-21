@@ -1,0 +1,28 @@
+one:
+  name: "Sony WH-1000XM5 Headphones"
+  url: "https://www.amazon.com/dp/B09XS7JWHH"
+  sku: "WH1000XM5"
+  current_price: 350.00
+  check_status: "success"
+  last_checked_at: <%= 2.hours.ago %>
+
+two:
+  name: "Apple AirPods Pro"
+  url: "https://www.bestbuy.com/site/12345"
+  current_price: 250.00
+  check_status: "success"
+  last_checked_at: <%= 1.day.ago %>
+
+pending_product:
+  name: "Wrinkle Patches"
+  url: "https://www.walmart.com/ip/athbdg=L1800"
+  current_price: 0
+  check_status: "pending"
+  last_checked_at: <%= nil %>
+
+error_product:
+  name: "Bluey Game"
+  url: "https://target.com/p/bluey-keepy-uppy-game/-/A-87882657"
+  current_price: 0
+  check_status: "error"
+  last_checked_at: <%= 1.hour.ago %>
