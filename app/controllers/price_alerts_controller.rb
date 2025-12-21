@@ -4,7 +4,7 @@ class PriceAlertsController < ApplicationController
 
   def create
     @product = Product.find(params[:product_id])
-    @price_alert = current_user.price_alerts.build(
+    @price_alert = Current.user.price_alerts.build(
       product: @product,
       target_price: params[:price_alert][:target_price]
     )
@@ -30,6 +30,6 @@ class PriceAlertsController < ApplicationController
   private
 
   def set_price_alert
-    @price_alert = current_user.price_alerts.find(params[:id])
+    @price_alert = Current.user.price_alerts.find(params[:id])
   end
 end

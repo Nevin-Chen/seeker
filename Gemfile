@@ -39,6 +39,10 @@ gem "pg", "~> 1.5"
 
 gem "tailwindcss-rails", "~> 4.4"
 
+gem "httparty"
+gem "nokogiri"
+gem "playwright-ruby-client"
+
 gem "dotenv-rails", groups: [ :development, :test ]
 
 group :development, :test do
@@ -64,4 +68,5 @@ group :test do
   # Use system testing [https://guides.rubyonrails.org/testing.html#system-testing]
   gem "capybara"
   gem "selenium-webdriver"
+  gem "mocha"
 end

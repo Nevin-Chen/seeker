@@ -3,11 +3,11 @@ class ProductsController < ApplicationController
   before_action :set_product, only: [ :show ]
 
   def index
-    @products = current_user.products.includes(:price_alerts).order(created_at: :desc)
+    @products = Current.user.products.includes(:price_alerts).order(created_at: :desc)
   end
 
   def show
-    @price_alert = current_user.price_alerts.find_by(product: @product)
+    @price_alert = Current.user.price_alerts.find_by(product: @product)
     @new_alert = PriceAlert.new(product: @product) unless @price_alert
   end
 
@@ -23,13 +23,14 @@ class ProductsController < ApplicationController
     end
 
     if @product.save
-      @price_alert = current_user.price_alerts.build(
+      @price_alert = Current.user.price_alerts.build(
         product: @product,
         target_price: product_params[:target_price]
       )
 
       if @price_alert.save
-        redirect_to @product, notice: "Product added and price alert created!"
+        PriceCheckJob.perform_later(@product.id)
+        redirect_to @product, notice: "Product added! Checking the price now..."
       else
         render :new, status: :unprocessable_entity
       end
