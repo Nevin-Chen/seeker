@@ -1,1 +1,26 @@
-<h1>Seeker</h1>
+<div class="text-center py-20">
+  <h1 class="text-4xl sm:text-5xl font-bold tracking-tight">
+    Track prices across e-commerce sites
+  </h1>
+
+  <p class="mt-6 max-w-2xl mx-auto text-lg text-gray-600">
+    Tracky automatically scrapes product pages and keeps historical pricing
+    so you can spot drops, trends, and changes over time.
+  </p>
+
+  <div class="mt-10 flex justify-center gap-4">
+    <% if authenticated? %>
+      <%= link_to "Go to Dashboard", "#",
+        class: "bg-blue-600 text-white px-6 py-3 rounded-md font-medium
+                hover:bg-blue-700 transition" %>
+    <% else %>
+      <%= link_to "Get started", signup_path,
+        class: "bg-blue-600 text-white px-6 py-3 rounded-md font-medium
+                hover:bg-blue-700 transition" %>
+
+      <%= link_to "Log in", login_path,
+        class: "px-6 py-3 rounded-md font-medium text-gray-700
+                hover:bg-gray-100 transition" %>
+    <% end %>
+  </div>
+</div>
