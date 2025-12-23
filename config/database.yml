@@ -8,8 +8,13 @@ default: &default
   password: <%= ENV["DB_PASSWORD"] %>
 
 development:
-  <<: *default
-  database: seeker_development
+  primary:
+    <<: *default
+    database: seeker_development
+
+  queue:
+    <<: *default
+    database: seeker_queue_development
 
 test:
   <<: *default
