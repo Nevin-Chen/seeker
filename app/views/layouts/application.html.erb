@@ -14,10 +14,10 @@
   <body>
     <header>
       <nav>
-        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative z-50 flex justify-between py-8">
+        <div class="flex-auto mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative z-50 flex justify-between py-8">
           <div class="relative z-10 flex items-center gap-16">
             <%= link_to root_path, aria: { label: "Home" }, class: "flex items-center gap-2 font-bold text-gray-900 group" do %>
-              <%= image_tag "binoculars.png", alt: "Binoculars", style: "width: 40px; height: 40px;" %>
+              <svg viewBox="340 80 170 200" class="w-[35px] h-[22px]" xmlns="http://www.w3.org/2000/svg"><style>.hover-rect{width:0;transition:width 0.7s;}.group:hover .hover-rect{width:170px;}</style><path d="M500.033,264.883c-3.503-7.098-78.448-130.636-80.347-133.721c-13.99-22.704-38.24-36.258-64.869-36" class="fill-gray-300"></path><rect class="fill-black hover-rect" height="200" y="80" x="340" clip-path="url(#icon-clip)"></rect><defs><clipPath id="icon-clip"><path d="M500.033,264.883c-3.503-7.098-78.448-130.636-80.347-133.721c-13.99-22.704-38.24-36.258-64.869-36"/></clipPath></defs></svg>
               <span>Seeker</span>
             <% end %>
 
@@ -31,7 +31,7 @@
           <div class="flex items-center gap-6">
             <% if authenticated? %>
               <%= link_to new_product_path,
-                class: "relative inline-flex items-center gap-1.5 rounded-md bg-blue-400 px-3 py-2 text-sm font-semibold text-white hover:bg-blue-500 transition appearance-none" do %>
+                class: "relative inline-flex items-center gap-1.5 rounded-full border border-transparent bg-blue-400 px-3 py-2 text-sm font-semibold text-white hover:bg-blue-500 transition appearance-none" do %>
                 <svg
                   viewBox="0 0 20 20"
                   fill="currentColor"
@@ -43,13 +43,11 @@
                 Track new products
               <% end %>
 
-              <div
-                data-controller="user-menu"
-              >
+              <div data-controller="user-menu" class="relative">
                 <button
                   type="button"
                   data-action="click->user-menu#toggle"
-                  class="flex h-8 w-8 items-center justify-center rounded-full bg-orange-300 text-sm font-semibold text-white focus:outline-none cursor-pointer"
+                  class="flex h-8 w-8 items-center justify-center rounded-full bg-gray-900 text-sm font-semibold text-white focus:outline-none cursor-pointer"
                   aria-haspopup="true"
                 >
                   <%= Current.user.username.first.upcase %>
@@ -64,7 +62,7 @@
                 >
                   <div class="px-4 py-3">
                     <div class="flex items-center gap-3">
-                      <div class="flex h-8 w-8 items-center justify-center rounded-full bg-orange-300 text-sm font-semibold text-white">
+                      <div class="flex h-8 w-8 items-center justify-center rounded-full bg-gray-900 text-sm font-semibold text-white">
                         <%= Current.user.username.first.upcase %>
                       </div>
 
@@ -83,10 +81,10 @@
               </div>
             <% else %>
               <%= link_to "Log in", login_path,
-                    class: "inline-flex justify-center rounded-lg border py-[calc(--spacing(2)-1px)] px-[calc(--spacing(3)-1px)] text-sm transition-colors border-gray-300 text-gray-700 hover:border-gray-400 active:bg-gray-100 active:text-gray-700/80" %>
+                    class: "relative inline-flex justify-center rounded-full border border-transparent py-[calc(--spacing(2)-1px)] px-[calc(--spacing(3)-1px)] text-sm transition-colors border-gray-300 text-gray-700 hover:border-gray-400 active:bg-gray-100 active:text-gray-700/80" %>
 
               <%= link_to "Sign up", signup_path,
-                    class: "inline-flex justify-center rounded-lg py-2 px-3 text-sm font-semibold transition-colors bg-gray-800 text-white hover:bg-gray-900 active:bg-gray-800 active:text-white/80" %>
+                    class: "relative inline-flex items-center gap-1.5 rounded-full border border-transparent bg-blue-400 px-3 py-2 text-sm font-semibold text-white hover:bg-blue-500 transition appearance-none" %>
             <% end %>
           </div>
 

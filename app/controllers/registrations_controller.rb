@@ -1,5 +1,6 @@
 class RegistrationsController < ApplicationController
   allow_unauthenticated_access only: [ :new, :create ]
+  before_action :redirect_if_authenticated, only: [ :new, :create ]
 
   def new
     @user = User.new
@@ -20,5 +21,9 @@ class RegistrationsController < ApplicationController
 
   def user_params
     params.require(:user).permit(:username, :email_address, :password, :password_confirmation)
+  end
+
+  def redirect_if_authenticated
+    redirect_to root_path if authenticated?
   end
 end
