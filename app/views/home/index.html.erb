@@ -3,7 +3,7 @@
     <div class="lg:grid lg:grid-cols-12 lg:gap-x-8 lg:gap-y-20">
       <div class="relative z-10 mx-auto max-w-2xl lg:col-span-7 lg:max-w-none lg:pt-6 xl:col-span-6">
         <h1 class="text-4xl font-medium tracking-tight text-gray-900">Stay ahead of the deals.</h1>
-        <p class="mt-6 text-lg text-gray-600">Get notifications when prices hit your target, track your favorite items, and see what other members of the community are saving.</p>
+        <p class="mt-6 text-lg text-gray-600">Get notifications when prices hit your target, track your favorite items, and see how other members of the community are saving.</p>
         <div class="mt-8 flex flex-wrap gap-x-6 gap-y-4">
           <% if authenticated? %>
             <%= link_to "Track products", new_product_path, class: "group inline-flex items-center justify-center rounded-full py-2 px-4 text-sm font-semibold focus-visible:outline-2 focus-visible:outline-offset-2 bg-slate-900 text-white hover:bg-slate-700 hover:text-slate-100 active:bg-slate-800 active:text-slate-300 focus-visible:outline-slate-900" %>
@@ -14,14 +14,16 @@
       </div>
 
       <div class="relative mt-10 sm:mt-20 lg:col-span-5 lg:row-span-2 lg:mt-0 xl:col-span-6">
+        <div class="-mx-4 h-[448px] mask-[linear-gradient(to_bottom,white_60%,transparent)] px-9 sm:mx-0 lg:absolute lg:-inset-x-10 lg:-top-10 lg:-bottom-20 lg:h-auto lg:px-0 lg:pt-10 xl:-bottom-32">
+        </div>
       </div>
 
       <div class="relative -mt-4 lg:col-span-7 lg:mt-0 xl:col-span-6">
-        <p class="text-center text-sm font-semibold text-gray-900">
+        <p class="text-center text-sm font-semibold text-gray-900 lg:text-left">
           Track products from major retailers
         </p>
 
-        <ul role="list" class="mx-auto mt-8 flex max-w-xl flex-wrap justify-center gap-x-10 gap-y-8">
+        <ul role="list" class="mx-auto mt-8 flex max-w-xl flex-wrap justify-center gap-x-10 gap-y-8 lg:mx-0 lg:justify-start">
           <li class="flex items-center">
             <svg xmlns="http://www.w3.org/2000/svg" width="120" height="60"><path d="M21.03 35.86c3.23 0 5.98-2.63 5.98-5.98 0-3.23-2.63-5.98-5.98-5.98-3.23 0-5.98 2.63-5.98 5.98 0 3.23 2.75 5.98 5.98 5.98zm0 5.502A11.36 11.36 0 0 0 32.393 30c0-6.22-5.144-11.362-11.362-11.362S9.668 23.78 9.668 30 14.8 41.362 21.03 41.362zM3.807 30c0-9.57 7.774-17.223 17.223-17.223S38.253 20.55 38.253 30 30.48 47.223 21.03 47.223 3.807 39.57 3.807 30z" fill="#da2032"/><path d="M48.392 25.4v12.395H44.66V25.4h-4.256v-3.136h12.32V25.4zm22.775 0h-3.435v3.136h3.06c1.12 0 1.867-.448 1.867-1.568.075-1.12-.673-1.568-1.494-1.568zm-7.094-3.136h7.243c4.107 0 4.704 2.837 4.704 4.48 0 2.4-2.016 3.584-2.24 3.66 0 0 1.867.672 1.867 2.688v2.912c0 1.12.672 1.493.82 1.792H73.48c-1.42-.15-1.344-1.27-1.344-1.867V33.4c-.075-.598-.224-1.27-1.493-1.27h-2.987v5.675h-3.5v-15.53zm37.857 5.906h-6.347V25.4h7.467v-3.136H91.925v15.53h11.126v-3.136h-7.467v-3.5h6.347zm9.708 9.634V25.4h4.555v-3.136h-12.62V25.4h4.406v12.395zM56.53 27.798l-1.27 4.032h2.688zm-2.1-5.525h4.032l5.45 15.457H60.04l-1.12-3.2h-4.555l-1.12 3.2h-3.808zm36.216 6.87H84v2.987h3.2c0 .598.075 1.195-.672 2.1-.3.3-1.12.97-2.315.97-1.045 0-1.792-.3-2.4-.82-1.42-1.195-1.792-3.36-1.792-4.63 0-1.493.598-5.078 4.107-5.227 0 0 2.464-.15 3.06 2.763h3.36c-.075-1.493-1.792-5.6-6.347-5.6-1.568 0-3.584.448-5.302 2.165-1.195 1.195-2.315 3.286-2.315 6.123 0 3.136 1.12 5.152 2.165 6.273 1.867 1.942 3.733 2.1 4.704 2.1.747 0 2.24-.15 4.107-1.42l.448.896h2.54z"/></svg>
           </li>

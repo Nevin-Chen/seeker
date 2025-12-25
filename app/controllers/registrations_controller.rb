@@ -1,4 +1,5 @@
 class RegistrationsController < ApplicationController
+  layout "authentication"
   allow_unauthenticated_access only: [ :new, :create ]
   before_action :redirect_if_authenticated, only: [ :new, :create ]
 

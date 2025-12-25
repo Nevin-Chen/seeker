@@ -30,19 +30,6 @@
 
           <div class="flex items-center gap-6">
             <% if authenticated? %>
-              <%= link_to new_product_path,
-                class: "relative inline-flex items-center gap-1.5 rounded-full border border-transparent bg-blue-400 px-3 py-2 text-sm font-semibold text-white hover:bg-blue-500 transition appearance-none" do %>
-                <svg
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                  aria-hidden="true"
-                  class="h-5 w-5"
-                >
-                  <path d="M10.75 4.75a.75.75 0 0 0-1.5 0v4.5h-4.5a.75.75 0 0 0 0 1.5h4.5v4.5a.75.75 0 0 0 1.5 0v-4.5h4.5a.75.75 0 0 0 0-1.5h-4.5v-4.5Z" />
-                </svg>
-                Track new products
-              <% end %>
-
               <div data-controller="user-menu" class="relative">
                 <button
                   type="button"
@@ -81,10 +68,10 @@
               </div>
             <% else %>
               <%= link_to "Log in", login_path,
-                    class: "relative inline-flex justify-center rounded-full border border-transparent py-[calc(--spacing(2)-1px)] px-[calc(--spacing(3)-1px)] text-sm transition-colors border-gray-300 text-gray-700 hover:border-gray-400 active:bg-gray-100 active:text-gray-700/80" %>
+                    class: "relative inline-flex items-center justify-center px-4 py-2 rounded-full text-base font-medium whitespace-nowrap text-slate-700 hover:bg-slate-100 hover:text-slate-900 transition" %>
 
               <%= link_to "Sign up", signup_path,
-                    class: "relative inline-flex items-center gap-1.5 rounded-full border border-transparent bg-blue-400 px-3 py-2 text-sm font-semibold text-white hover:bg-blue-500 transition appearance-none" %>
+                    class: "relative inline-flex items-center justify-center px-4 py-2 rounded-full border border-transparent bg-gray-950 shadow-md text-base font-medium whitespace-nowrap text-white hover:bg-gray-800 transition" %>
             <% end %>
           </div>
 
