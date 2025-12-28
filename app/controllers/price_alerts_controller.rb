@@ -2,6 +2,10 @@ class PriceAlertsController < ApplicationController
   before_action :require_authentication
   before_action :set_price_alert, only: [ :destroy, :toggle ]
 
+  def index
+    @price_alerts = Current.user.price_alerts.includes(:product)
+  end
+
   def create
     @product = Product.find(params[:product_id])
     @price_alert = Current.user.price_alerts.build(

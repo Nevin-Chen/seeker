@@ -11,11 +11,11 @@ Rails.application.routes.draw do
 
   resources :passwords, param: :token
 
-  resources :products, only: [ :index, :show, :new, :create ] do
+  resources :products, only: [ :show, :new, :create ] do
     resources :price_alerts, only: [ :create ]
   end
 
-  resources :price_alerts, only: [ :destroy ] do
+  resources :price_alerts, only: [ :index, :destroy ] do
     member do
       patch :toggle
     end
