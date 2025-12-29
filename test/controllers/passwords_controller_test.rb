@@ -14,7 +14,7 @@ class PasswordsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to login_path
 
     follow_redirect!
-    assert_notice "reset instructions sent"
+    assert_match /reset instructions sent/i, flash[:notice]
   end
 
   test "create for an unknown user redirects but sends no mail" do
@@ -23,7 +23,7 @@ class PasswordsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to login_path
 
     follow_redirect!
-    assert_notice "reset instructions sent"
+    assert_match /reset instructions sent/i, flash[:notice]
   end
 
   test "edit" do
@@ -36,17 +36,17 @@ class PasswordsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to new_password_path
 
     follow_redirect!
-    assert_notice "reset link is invalid"
+    assert_match /reset link is invalid/i, flash[:alert]
   end
 
   test "update" do
     assert_changes -> { @user.reload.password_digest } do
-      put password_path(@user.password_reset_token), params: { username: @user.username, password: "new", password_confirmation: "new" }
+      put password_path(@user.password_reset_token), params: { password: "new_password", password_confirmation: "new_password" }
       assert_redirected_to login_path
     end
 
     follow_redirect!
-    assert_notice "Password has been reset"
+    assert_match /Password has been reset/i, flash[:notice]
   end
 
   test "update with non matching passwords" do
@@ -57,11 +57,6 @@ class PasswordsControllerTest < ActionDispatch::IntegrationTest
     end
 
     follow_redirect!
-    assert_notice "Passwords did not match"
+    assert_match /Passwords did not match/i, flash[:alert]
   end
-
-  private
-    def assert_notice(text)
-      assert_select "div", /#{text}/
-    end
 end

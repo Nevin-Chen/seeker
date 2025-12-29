@@ -1,0 +1,119 @@
+<div class="mb-6">
+  <div class="flex items-center justify-between">
+    <h1 class="text-2xl font-semibold text-gray-900">My Alerts</h1>
+    <%= link_to new_product_path, class: "inline-flex items-center gap-1.5 px-4 py-2 bg-gray-800 text-white text-sm font-medium rounded-full hover:bg-gray-700 transition-colors" do %>
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+      </svg>
+      New Alert
+    <% end %>
+  </div>
+</div>
+
+<% if @price_alerts.any? %>
+  <%
+    checking = @price_alerts.select { |a| a.product.current_price.nil? || a.product.check_status == 'pending' }
+    errors = @price_alerts.select { |a| !checking.include?(a) && a.product.check_status.in?(%w[blocked error]) }
+    target_reached = @price_alerts.select { |a| !checking.include?(a) && !errors.include?(a) && a.price_dropped? }
+    paused = @price_alerts.select { |a| !checking.include?(a) && !errors.include?(a) && !target_reached.include?(a) && !a.active? }
+    active_alerts = @price_alerts.select { |a| !checking.include?(a) && !errors.include?(a) && !target_reached.include?(a) && !paused.include?(a) && a.active? }
+  %>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div class="flex flex-col">
+      <div class="flex items-center gap-2 mb-3 px-1">
+        <div class="w-2 h-2 rounded-full bg-amber-500"></div>
+        <h3 class="text-sm font-semibold text-gray-700">Checking</h3>
+        <span class="text-xs text-gray-500"><%= checking.count %></span>
+      </div>
+      <div class="space-y-3 flex-1 bg-stone-50 rounded-lg p-3 min-h-[200px]">
+        <% checking.each do |alert| %>
+          <%= render partial: 'alert_card', locals: { alert: alert, status: 'checking' } %>
+        <% end %>
+        <% if checking.empty? %>
+          <div class="text-center py-8 text-sm text-gray-400">No items</div>
+        <% end %>
+      </div>
+    </div>
+
+    <div class="flex flex-col">
+      <div class="flex items-center gap-2 mb-3 px-1">
+        <div class="w-2 h-2 rounded-full bg-blue-500"></div>
+        <h3 class="text-sm font-semibold text-gray-700">Active</h3>
+        <span class="text-xs text-gray-500"><%= active_alerts.count %></span>
+      </div>
+      <div class="space-y-3 flex-1 bg-stone-50 rounded-lg p-3 min-h-[200px]">
+        <% active_alerts.each do |alert| %>
+          <%= render partial: 'alert_card', locals: { alert: alert, status: 'active' } %>
+        <% end %>
+        <% if active_alerts.empty? %>
+          <div class="text-center py-8 text-sm text-gray-400">No items</div>
+        <% end %>
+      </div>
+    </div>
+
+    <div class="flex flex-col">
+      <div class="flex items-center gap-2 mb-3 px-1">
+        <div class="w-2 h-2 rounded-full bg-green-500"></div>
+        <h3 class="text-sm font-semibold text-gray-700">Target Reached</h3>
+        <span class="text-xs text-gray-500"><%= target_reached.count %></span>
+      </div>
+      <div class="space-y-3 flex-1 bg-stone-50 rounded-lg p-3 min-h-[200px]">
+        <% target_reached.each do |alert| %>
+          <%= render partial: 'alert_card', locals: { alert: alert, status: 'reached' } %>
+        <% end %>
+        <% if target_reached.empty? %>
+          <div class="text-center py-8 text-sm text-gray-400">No items</div>
+        <% end %>
+      </div>
+    </div>
+
+    <div class="flex flex-col">
+      <div class="flex items-center gap-2 mb-3 px-1">
+        <div class="w-2 h-2 rounded-full bg-stone-500"></div>
+        <h3 class="text-sm font-semibold text-gray-700">Paused</h3>
+        <span class="text-xs text-gray-500"><%= paused.count %></span>
+      </div>
+      <div class="space-y-3 flex-1 bg-stone-50 rounded-lg p-3 min-h-[200px]">
+        <% paused.each do |alert| %>
+          <%= render partial: 'alert_card', locals: { alert: alert, status: 'paused' } %>
+        <% end %>
+        <% if paused.empty? %>
+          <div class="text-center py-8 text-sm text-gray-400">No items</div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <% if errors.any? %>
+    <div class="mt-6">
+      <div class="flex items-center gap-2 mb-3 px-1">
+        <div class="w-2 h-2 rounded-full bg-red-500"></div>
+        <h3 class="text-sm font-semibold text-gray-700">Errors</h3>
+        <span class="text-xs text-gray-500"><%= errors.count %></span>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+        <% errors.each do |alert| %>
+          <%= render partial: 'alert_card', locals: { alert: alert, status: 'error' } %>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+<% else %>
+  <div class="border rounded-lg p-12 text-center bg-white">
+    <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-gray-100 mb-4">
+      <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+      </svg>
+    </div>
+    <h3 class="text-base font-medium text-gray-900 mb-1">No alerts yet</h3>
+    <p class="text-sm text-gray-600 mb-6">Start tracking your first product to get price alerts</p>
+    <%= link_to new_product_path, class: "inline-flex items-center gap-1.5 px-4 py-2 bg-gray-900 text-white text-sm font-medium rounded-full hover:bg-gray-800 transition-colors" do %>
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+      </svg>
+      Create Alert
+    <% end %>
+  </div>
+<% end %>

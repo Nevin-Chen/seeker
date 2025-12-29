@@ -2,10 +2,6 @@ class ProductsController < ApplicationController
   before_action :require_authentication
   before_action :set_product, only: [ :show ]
 
-  def index
-    @products = Current.user.products.includes(:price_alerts).order(created_at: :desc)
-  end
-
   def show
     @price_alert = Current.user.price_alerts.find_by(product: @product)
     @new_alert = PriceAlert.new(product: @product) unless @price_alert
@@ -30,7 +26,7 @@ class ProductsController < ApplicationController
 
       if @price_alert.save
         PriceCheckJob.perform_later(@product.id)
-        redirect_to @product, notice: "Product added! Checking the price now..."
+        redirect_to @product
       else
         render :new, status: :unprocessable_entity
       end

@@ -1,13 +1,22 @@
 <div class="max-w-2xl mx-auto">
-  <h1 class="text-3xl font-bold text-gray-900 mb-8">Track New Product</h1>
+  <%= link_to price_alerts_path, class: "inline-flex items-center gap-1 text-sm text-gray-600 hover:text-gray-900 mb-6 transition-colors" do %>
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+    </svg>
+    Back to My Alerts
+  <% end %>
 
-  <%= form_with model: @product, class: "bg-white shadow-sm rounded-lg p-6" do |f| %>
+  <div class="mb-6">
+    <h1 class="text-2xl font-semibold text-gray-900">Track New Product</h1>
+  </div>
+
+  <%= form_with model: @product, class: "bg-white rounded-xl shadow-sm ring-1 ring-black/5 p-7 sm:p-8" do |f| %>
     <% if @product.errors.any? %>
-      <div class="bg-red-50 border border-red-200 rounded-md p-4 mb-6">
+      <div class="mb-6 rounded-lg bg-red-50 p-4 ring-1 ring-red-200">
         <h3 class="text-sm font-medium text-red-800 mb-2">
           <%= pluralize(@product.errors.count, "error") %> prevented this product from being saved:
         </h3>
-        <ul class="list-disc list-inside text-sm text-red-700">
+        <ul class="text-sm text-red-700 space-y-1">
           <% @product.errors.full_messages.each do |message| %>
             <li><%= message %></li>
           <% end %>
@@ -15,39 +24,51 @@
       </div>
     <% end %>
 
-    <div class="mb-6">
-      <%= f.label :name, "Product Name", class: "block text-sm font-medium text-gray-700 mb-2" %>
-      <%= f.text_field :name, required: true, 
-                       placeholder: "e.g., iPhone 15 Pro",
-                       class: "w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" %>
+    <div class="space-y-6">
+      <div class="space-y-3">
+        <%= f.label :name, "Product Name", class: "text-sm/5 font-medium text-gray-900" %>
+        <%= f.text_field :name, 
+            required: true,
+            autofocus: true,
+            placeholder: "e.g., Sony WH-1000XM5 Headphones",
+            class: "block w-full rounded-lg border border-transparent shadow-sm ring-1 ring-black/10 px-3 py-2 text-base/6 sm:text-sm/6 focus:outline-2 focus:-outline-offset-1 focus:outline-black transition" %>
+      </div>
+
+      <div class="space-y-3">
+        <%= f.label :url, "Product URL", class: "text-sm/5 font-medium text-gray-900" %>
+        <%= f.url_field :url,
+            required: true,
+            placeholder: "https://www.amazon.com/dp/...",
+            class: "block w-full rounded-lg border border-transparent shadow-sm ring-1 ring-black/10 px-3 py-2 text-base/6 sm:text-sm/6 focus:outline-2 focus:-outline-offset-1 focus:outline-black transition" %>
+        <p class="text-xs text-gray-600">Paste the full URL from the product page</p>
+      </div>
+
+      <div class="space-y-3">
+        <%= f.label :sku, class: "text-sm/5 font-medium text-gray-900" do %>
+          SKU <span class="text-xs font-normal text-gray-500">(optional)</span>
+        <% end %>
+        <%= f.text_field :sku,
+            placeholder: "Product SKU if available",
+            class: "block w-full rounded-lg border border-transparent shadow-sm ring-1 ring-black/10 px-3 py-2 text-base/6 sm:text-sm/6 focus:outline-2 focus:-outline-offset-1 focus:outline-black transition" %>
+      </div>
+
+      <div class="space-y-3">
+        <%= f.label :target_price, "Target Price", class: "text-sm/5 font-medium text-gray-900" %>
+        <div class="relative">
+          <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm">$</span>
+          <%= f.number_field :target_price,
+              step: 0.01,
+              required: true,
+              placeholder: "99.99",
+              class: "block w-full pl-8 rounded-lg border border-transparent shadow-sm ring-1 ring-black/10 px-3 py-2 text-base/6 sm:text-sm/6 focus:outline-2 focus:-outline-offset-1 focus:outline-black transition" %>
+        </div>
+        <p class="text-xs text-gray-600">You'll be notified when the price drops to this amount or lower</p>
+      </div>
     </div>
 
-    <div class="mb-6">
-      <%= f.label :url, "Product URL", class: "block text-sm font-medium text-gray-700 mb-2" %>
-      <%= f.url_field :url, required: true, 
-                      placeholder: "https://www.amazon.com/product/...",
-                      class: "w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" %>
-      <p class="mt-1 text-sm text-gray-500">Paste the full URL of the product page</p>
-    </div>
-
-    <div class="mb-6">
-      <%= f.label :sku, "SKU (optional)", class: "block text-sm font-medium text-gray-700 mb-2" %>
-      <%= f.text_field :sku,
-                       placeholder: "Product SKU if available",
-                       class: "w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" %>
-    </div>
-
-    <div class="mb-6">
-      <%= f.label :target_price, "Alert me when price drops to:", class: "block text-sm font-medium text-gray-700 mb-2" %>
-      <%= f.number_field :target_price, step: 0.01, required: true,
-                         placeholder: "99.99",
-                         class: "w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" %>
-      <p class="mt-1 text-sm text-gray-500">We'll notify you when the price reaches this amount or lower</p>
-    </div>
-
-    <div class="flex items-center space-x-4">
-      <%= f.submit "Track This Product", class: "bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 transition cursor-pointer" %>
-      <%= link_to "Cancel", products_path, class: "text-gray-700 hover:text-gray-900" %>
+    <div class="mt-8 pt-6 border-t border-gray-100 flex items-center gap-6">
+      <%= f.submit "Track Product", class: "relative inline-flex items-center gap-1.5 rounded-full border border-transparent bg-gray-950 px-5 py-2 text-sm font-semibold text-white hover:bg-gray-800 transition cursor-pointer shadow-md" %>
+      <%= link_to "Cancel", price_alerts_path, class: "text-sm text-gray-600 hover:text-gray-900 transition" %>
     </div>
   <% end %>
 </div>
