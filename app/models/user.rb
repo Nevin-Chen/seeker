@@ -12,6 +12,10 @@ class User < ApplicationRecord
 
   validates :role, inclusion: { in: %w[user admin] }
 
+  generates_token_for :password_reset, expires_in: 15.minutes do
+    password_salt&.last(10)
+  end
+
   normalizes :email_address, with: ->(e) { e.strip.downcase }
 
   after_initialize :set_default_role, if: :new_record?
