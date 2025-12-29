@@ -12,13 +12,14 @@ class SessionsController < ApplicationController
       start_new_session_for user
       redirect_to after_authentication_url
     else
-      redirect_to login_path, alert: "Invalid email address or password."
+      flash.now[:alert] = "Invalid email or password."
+      render :new, status: :unprocessable_entity
     end
   end
 
   def destroy
     terminate_session
-    redirect_to login_path, status: :see_other
+    redirect_to root_path, status: :see_other
   end
 
   private
