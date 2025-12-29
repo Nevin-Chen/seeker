@@ -18,8 +18,9 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
   test "create with invalid credentials" do
     post session_path, params: { email_address: @user.email_address, password: "wrong" }
 
-    assert_redirected_to login_path
+    assert_response :unprocessable_entity
     assert_nil cookies[:session_id]
+    assert_equal "Invalid email or password.", flash[:alert]
   end
 
   test "destroy" do
@@ -27,7 +28,7 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
 
     delete session_path
 
-    assert_redirected_to login_path
+    assert_redirected_to root_path
     assert_empty cookies[:session_id]
   end
 end
