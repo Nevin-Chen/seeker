@@ -14,7 +14,7 @@
     <% if @product.errors.any? %>
       <div class="mb-6 rounded-lg bg-red-50 p-4 ring-1 ring-red-200">
         <h3 class="text-sm font-medium text-red-800 mb-2">
-          <%= pluralize(@product.errors.count, "error") %> prevented this product from being saved:
+          <%= pluralize(@product.errors.count, "error") %>:
         </h3>
         <ul class="text-sm text-red-700 space-y-1">
           <% @product.errors.full_messages.each do |message| %>

@@ -5,7 +5,7 @@ class User < ApplicationRecord
   has_many :price_alerts, dependent: :destroy
   has_many :products, through: :price_alerts
 
-  validates :username, presence: true
+  validates :username, presence: true, uniqueness: true
   validates :email_address, presence: true,
                             uniqueness: true,
                             format: { with: URI::MailTo::EMAIL_REGEXP }
