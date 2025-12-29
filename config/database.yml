@@ -25,12 +25,11 @@ production:
     <<: *default
     database: <%= ENV["DB_NAME"] %>
 
-cache:
-  production:
+  queue:
     <<: *default
-    database: <%= ENV["DB_NAME"] %>
+    database: seeker_queue_production
 
-queue:
+cache:
   production:
     <<: *default
     database: <%= ENV["DB_NAME"] %>
