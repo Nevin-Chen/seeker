@@ -27,8 +27,8 @@
     <div class="space-y-6">
       <div class="space-y-3">
         <%= f.label :name, "Product Name", class: "text-sm/5 font-medium text-gray-900" %>
-        <%= f.text_field :name, 
-            required: true,
+        <span class="text-xs font-normal text-gray-500">(optional)</span>
+        <%= f.text_field :name,
             autofocus: true,
             placeholder: "e.g., Sony WH-1000XM5 Headphones",
             class: "block w-full rounded-lg border border-transparent shadow-sm ring-1 ring-black/10 px-3 py-2 text-base/6 sm:text-sm/6 focus:outline-2 focus:-outline-offset-1 focus:outline-black transition" %>

@@ -164,11 +164,19 @@ class ProductScraper
   end
 
   def update_product(price, status, strategy = nil)
-    @product.update(
+    product_name = extract_product_name
+    image_url = extract_product_image
+
+    update_attrs = {
       current_price: price,
       last_checked_at: Time.current,
       check_status: status
-    )
+    }
+
+    update_attrs[:name] = product_name if product_name.present? || @product.name.blank?
+    update_attrs[:image_url] = image_url if image_url.present?
+
+    @product.update(update_attrs)
 
     Rails.logger.info "Site scraped using #{strategy}" if strategy
 
@@ -189,5 +197,67 @@ class ProductScraper
       Rails.logger.info "Alert triggered: #{alert.user.username} - #{@product.name} at $#{price}"
       alert.update(last_notified_at: Time.current)
     end
+  end
+
+
+  private
+
+  def extract_product_name
+    return nil unless @last_doc
+
+    case @domain
+    when /amazon\./
+      extract_amazon_name
+    when /target\./
+      extract_target_name
+    else
+      extract_generic_name
+    end
+  end
+
+  def extract_amazon_name
+    @last_doc.at_css("#productTitle")&.text&.strip ||
+    @last_doc.at_css("h1.product-title")&.text&.strip
+  end
+
+  def extract_target_name
+    @last_doc.at_css('[data-test="product-title"]')&.text&.strip ||
+    @last_doc.at_css("h1")&.text&.strip
+  end
+
+  def extract_generic_name
+    @last_doc.at_css("h1")&.text&.strip ||
+    @last_doc.at_css('[property="og:title"]')&.[]("content") ||
+    @last_doc.at_css("title")&.text&.strip
+  end
+
+  def extract_product_image
+    return nil unless @last_doc
+
+    case @domain
+    when /amazon\./
+      extract_amazon_image
+    when /target\./
+      extract_target_image
+    else
+      extract_generic_image
+    end
+  end
+
+  def extract_amazon_image
+    @last_doc.at_css("#landingImage")&.[]("src") ||
+    @last_doc.at_css(".a-dynamic-image")&.[]("src") ||
+    @last_doc.at_css("[data-old-hires]")&.[]("data-old-hires")
+  end
+
+  def extract_target_image
+    @last_doc.at_css('[data-test="product-image"]')&.[]("src") ||
+    @last_doc.at_css('img[alt*="product"]')&.[]("src")
+  end
+
+  def extract_generic_image
+    @last_doc.at_css('[property="og:image"]')&.[]("content") ||
+    @last_doc.at_css('meta[name="twitter:image"]')&.[]("content") ||
+    @last_doc.at_css('img[itemprop="image"]')&.[]("src")
   end
 end
