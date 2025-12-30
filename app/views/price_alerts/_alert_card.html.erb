@@ -2,6 +2,15 @@
 <div class="bg-white rounded-lg p-3 shadow-sm hover:shadow-md transition-shadow border border-gray-200"
      data-alert-id="<%= alert.id %>">
   <%= link_to product, class: "block mb-2" do %>
+    <% if product.image_url.present? %>
+      <div class="mb-2 aspect-square rounded overflow-hidden bg-gray-100">
+        <%= image_tag product.image_url,
+                     alt: product.name,
+                     class: "w-full h-full object-cover",
+                     loading: "lazy",
+                     onerror: "this.style.display='none'" %>
+      </div>
+    <% end %>
     <h4 class="font-medium text-sm text-gray-900 mb-1 line-clamp-2 group-hover:text-gray-700">
       <%= product.name %>
     </h4>
