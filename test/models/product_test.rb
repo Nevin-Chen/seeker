@@ -2,13 +2,8 @@ require "test_helper"
 
 class ProductTest < ActiveSupport::TestCase
   test "valid product with required fields" do
-    product = Product.new(name: "iPhone 15", url: "https://seeker.com/iphone")
+    product = Product.new(url: "https://seeker.com/iphone")
     assert product.valid?
-  end
-
-  test "invalid without name" do
-    product = Product.new(url: "https://seeker.com/product")
-    refute product.valid?
   end
 
   test "invalid without url" do
