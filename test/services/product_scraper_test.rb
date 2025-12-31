@@ -64,18 +64,32 @@ class ProductScraperTest < ActiveSupport::TestCase
     assert_not_nil @product.last_checked_at
   end
 
-  test "scrape_with_static successfully parses price" do
-    mock_response = mock("response")
-    mock_response.stubs(:success?).returns(true)
-    mock_response.stubs(:body).returns('<span class="price">$99.99</span>')
+  test "scrape_with_static extracts price, name, and image" do
+    html = <<~HTML
+      <html>
+        <head>
+          <meta property="og:image" content="https://example.com/image.jpg" />
+        </head>
+        <body>
+          <h1>Test Product Name</h1>
+          <span class="price">$99.99</span>
+        </body>
+      </html>
+    HTML
 
-    HTTParty.stubs(:get).returns(mock_response)
-    PriceParsers::GenericPriceParser.any_instance.stubs(:parse).returns(99.99)
+    HTTParty.stubs(:get).returns(
+      mock(success?: true, body: html)
+    )
 
     scraper = ProductScraper.new(@product)
-    result = scraper.send(:scrape_with_static)
+    price = scraper.send(:scrape_with_static)
 
-    assert_equal 99.99, result
+    assert_equal 99.99, price
+
+    parser = scraper.instance_variable_get(:@last_parser)
+    assert_not_nil parser
+    assert_equal "Test Product Name", parser.parse_name
+    assert_equal "https://example.com/image.jpg", parser.parse_image
   end
 
   test "scrape_with_static returns nil on HTTP error" do
@@ -101,14 +115,30 @@ class ProductScraperTest < ActiveSupport::TestCase
     end
   end
 
-  test "scrape_with_playwright successfully extracts price" do
-    mock_playwright_browser
-    PriceParsers::GenericPriceParser.any_instance.stubs(:parse).returns(199.99)
+  test "scrape_with_playwright extracts price, name, and image" do
+    html = <<~HTML
+      <html>
+        <head>
+          <meta property="og:image" content="https://example.com/product.jpg" />
+        </head>
+        <body>
+          <h1>Another Test Product</h1>
+          <span class="price">$199.99</span>
+        </body>
+      </html>
+    HTML
+
+    mock_playwright_with_html(html)
 
     scraper = ProductScraper.new(@product)
-    result = scraper.send(:scrape_with_playwright)
+    price = scraper.send(:scrape_with_playwright)
 
-    assert_equal 199.99, result
+    assert_equal 199.99, price
+
+    parser = scraper.instance_variable_get(:@last_parser)
+    assert_not_nil parser
+    assert_equal "Another Test Product", parser.parse_name
+    assert_equal "https://example.com/product.jpg", parser.parse_image
   end
 
   test "scrape_with_playwright handles exceptions" do
@@ -120,37 +150,34 @@ class ProductScraperTest < ActiveSupport::TestCase
     assert_nil result
   end
 
-  test "parse_price_for_domain selects AmazonPriceParser for amazon.com" do
-    product = Product.new(name: "Test", url: "https://www.amazon.com/dp/B123")
-    scraper = ProductScraper.new(product)
-    doc = Nokogiri::HTML("<html></html>")
-
-    PriceParsers::AmazonPriceParser.any_instance.expects(:parse).returns(99.99)
-
-    result = scraper.send(:parse_price_for_domain, doc)
-    assert_equal 99.99, result
-  end
-
-  test "parse_price_for_domain selects TargetPriceParser for target.com" do
+  test "get_parser returns TargetParser for target.com" do
     product = Product.new(name: "Test", url: "https://www.target.com/p/123")
     scraper = ProductScraper.new(product)
     doc = Nokogiri::HTML("<html></html>")
 
-    PriceParsers::TargetPriceParser.any_instance.expects(:parse).returns(149.99)
+    parser = scraper.send(:get_parser, doc)
 
-    result = scraper.send(:parse_price_for_domain, doc)
-    assert_equal 149.99, result
+    assert_instance_of SiteParsers::TargetParser, parser
   end
 
-  test "parse_price_for_domain selects GenericPriceParser for unknown domains" do
-    product = Product.new(name: "Test", url: "https://example.com/product")
+  test "get_parser returns AmazonParser for amazon.com" do
+    product = Product.new(name: "Test", url: "https://www.amazon.com/dp/123")
     scraper = ProductScraper.new(product)
     doc = Nokogiri::HTML("<html></html>")
 
-    PriceParsers::GenericPriceParser.any_instance.expects(:parse).returns(79.99)
+    parser = scraper.send(:get_parser, doc)
 
-    result = scraper.send(:parse_price_for_domain, doc)
-    assert_equal 79.99, result
+    assert_instance_of SiteParsers::AmazonParser, parser
+  end
+
+  test "get_parser returns BaseParser for unknown domain" do
+    product = Product.new(name: "Test", url: "https://www.example.com/product/123")
+    scraper = ProductScraper.new(product)
+    doc = Nokogiri::HTML("<html></html>")
+
+    parser = scraper.send(:get_parser, doc)
+
+    assert_instance_of SiteParsers::BaseParser, parser
   end
 
   test "update_product sets price and status" do
@@ -177,8 +204,9 @@ class ProductScraperTest < ActiveSupport::TestCase
     assert_not_nil alert.last_notified_at
   end
 
-  test "handle_error sets error status and timestamp" do
+  test "handle_error sets error status and broadcasts" do
     scraper = ProductScraper.new(@product)
+    scraper.stubs(:broadcast_price_update)
 
     scraper.send(:handle_error, "Test error")
 
@@ -267,28 +295,30 @@ class ProductScraperTest < ActiveSupport::TestCase
 
   private
 
-  def mock_playwright_browser
-    page = mock("page")
-    page.stubs(:set_extra_http_headers)
-    page.stubs(:goto)
-    page.stubs(:wait_for_timeout)
-    page.stubs(:content).returns('<div class="price">$199.99</div>')
-    page.stubs(:screenshot)
-    page.stubs(:locator).returns(stub(count: 0))
+  def mock_playwright_with_html(html)
+    mock_locator = mock("locator")
+    mock_locator.stubs(:count).returns(0)
 
-    context = mock("context")
-    context.stubs(:new_page).returns(page)
-    context.stubs(:close)
+    mock_page = mock("page")
+    mock_page.stubs(:set_extra_http_headers)
+    mock_page.stubs(:goto)
+    mock_page.stubs(:wait_for_timeout)
+    mock_page.stubs(:content).returns(html)
+    mock_page.stubs(:locator).returns(mock_locator)
 
-    browser = mock("browser")
-    browser.stubs(:new_context).returns(context)
+    mock_context = mock("context")
+    mock_context.stubs(:new_page).returns(mock_page)
+    mock_context.stubs(:close)
 
-    chromium = mock("chromium")
-    chromium.stubs(:launch).yields(browser)
+    mock_browser = mock("browser")
+    mock_browser.stubs(:new_context).returns(mock_context)
 
-    playwright_instance = mock("playwright")
-    playwright_instance.stubs(:chromium).returns(chromium)
+    mock_chromium = mock("chromium")
+    mock_chromium.stubs(:launch).yields(mock_browser)
 
-    Playwright.stubs(:create).yields(playwright_instance)
+    mock_playwright = mock("playwright")
+    mock_playwright.stubs(:chromium).returns(mock_chromium)
+
+    Playwright.stubs(:create).yields(mock_playwright)
   end
 end

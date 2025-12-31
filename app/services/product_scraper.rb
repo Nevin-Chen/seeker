@@ -10,6 +10,7 @@ class ProductScraper
     @product = product
     @url = product.url
     @domain = extract_domain(@url)
+    @last_parser = nil
   end
 
   def scrape
@@ -21,6 +22,8 @@ class ProductScraper
       Rails.logger.info "⏳ Rate limiting: waiting #{wait_time}s for #{@domain}"
       sleep(wait_time)
     end
+
+    Rails.cache.write("last_scrape:#{@domain}", Time.current)
 
     price = scrape_with_static
 
@@ -54,7 +57,13 @@ class ProductScraper
     return nil unless response.success?
 
     doc = Nokogiri::HTML(response.body)
-    price = parse_price_for_domain(doc)
+    parser = get_parser(doc)
+
+    price = parser.parse_price
+
+    if price
+      @last_parser = parser
+    end
 
     price
   rescue => e
@@ -99,7 +108,15 @@ class ProductScraper
     return nil unless html
 
     doc = Nokogiri::HTML(html)
-    parse_price_for_domain(doc)
+    parser = get_parser(doc)
+
+    price = parser.parse_price
+
+    if price
+      @last_parser = parser
+    end
+
+    price
   rescue => e
     Rails.logger.error "Playwright error: #{e.message}"
     Rails.logger.error e.backtrace.first(5).join("\n") if Rails.env.development?
@@ -127,17 +144,17 @@ class ProductScraper
     end
   end
 
-  def parse_price_for_domain(doc)
+  def get_parser(doc)
     parser_class = case @domain
     when /amazon\./
-                     PriceParsers::AmazonPriceParser
+      SiteParsers::AmazonParser
     when /target\./
-                     PriceParsers::TargetPriceParser
+      SiteParsers::TargetParser
     else
-                     PriceParsers::GenericPriceParser
+      SiteParsers::BaseParser
     end
 
-    parser_class.new(doc).parse
+    parser_class.new(doc)
   end
 
   def playwright_path
@@ -164,22 +181,25 @@ class ProductScraper
   end
 
   def update_product(price, status, strategy = nil)
-    product_name = extract_product_name
-    image_url = extract_product_image
-
     update_attrs = {
       current_price: price,
       last_checked_at: Time.current,
       check_status: status
     }
 
-    update_attrs[:name] = product_name if product_name.present? || @product.name.blank?
-    update_attrs[:image_url] = image_url if image_url.present?
+    if @last_parser
+      product_name = @last_parser.parse_name
+      image_url = @last_parser.parse_image
+
+      update_attrs[:name] = product_name if product_name.present? || @product.name.blank?
+      update_attrs[:image_url] = image_url if image_url.present?
+    end
 
     @product.update(update_attrs)
 
     Rails.logger.info "Site scraped using #{strategy}" if strategy
 
+    broadcast_price_update
     check_and_notify_alerts(price)
   end
 
@@ -188,6 +208,8 @@ class ProductScraper
       last_checked_at: Time.current,
       check_status: "error"
     )
+
+    broadcast_price_update
   end
 
   def check_and_notify_alerts(price)
@@ -199,65 +221,14 @@ class ProductScraper
     end
   end
 
-
-  private
-
-  def extract_product_name
-    return nil unless @last_doc
-
-    case @domain
-    when /amazon\./
-      extract_amazon_name
-    when /target\./
-      extract_target_name
-    else
-      extract_generic_name
-    end
-  end
-
-  def extract_amazon_name
-    @last_doc.at_css("#productTitle")&.text&.strip ||
-    @last_doc.at_css("h1.product-title")&.text&.strip
-  end
-
-  def extract_target_name
-    @last_doc.at_css('[data-test="product-title"]')&.text&.strip ||
-    @last_doc.at_css("h1")&.text&.strip
-  end
-
-  def extract_generic_name
-    @last_doc.at_css("h1")&.text&.strip ||
-    @last_doc.at_css('[property="og:title"]')&.[]("content") ||
-    @last_doc.at_css("title")&.text&.strip
-  end
-
-  def extract_product_image
-    return nil unless @last_doc
-
-    case @domain
-    when /amazon\./
-      extract_amazon_image
-    when /target\./
-      extract_target_image
-    else
-      extract_generic_image
-    end
-  end
-
-  def extract_amazon_image
-    @last_doc.at_css("#landingImage")&.[]("src") ||
-    @last_doc.at_css(".a-dynamic-image")&.[]("src") ||
-    @last_doc.at_css("[data-old-hires]")&.[]("data-old-hires")
-  end
-
-  def extract_target_image
-    @last_doc.at_css('[data-test="product-image"]')&.[]("src") ||
-    @last_doc.at_css('img[alt*="product"]')&.[]("src")
-  end
-
-  def extract_generic_image
-    @last_doc.at_css('[property="og:image"]')&.[]("content") ||
-    @last_doc.at_css('meta[name="twitter:image"]')&.[]("content") ||
-    @last_doc.at_css('img[itemprop="image"]')&.[]("src")
+  def broadcast_price_update
+    Turbo::StreamsChannel.broadcast_replace_to(
+      @product,
+      target: "product_#{@product.id}_price",
+      partial: "products/product_price",
+      locals: { product: @product.reload, price_alert: @product.price_alerts.first }
+    )
+  rescue => e
+    Rails.logger.error "BROADCAST ERROR: #{e.message}"
   end
 end
