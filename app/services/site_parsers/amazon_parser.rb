@@ -1,6 +1,6 @@
-module PriceParsers
-  class AmazonPriceParser < GenericPriceParser
-    def parse
+module SiteParsers
+  class AmazonParser < BaseParser
+    def parse_price
       whole = @doc.at_css(".a-price-whole")&.text
       fraction = @doc.at_css(".a-price-fraction")&.text
 
@@ -15,7 +15,7 @@ module PriceParsers
 
     private
 
-    def selectors
+    def price_selectors
       [
         ".a-price .a-offscreen",
         "#priceblock_ourprice",
@@ -24,6 +24,21 @@ module PriceParsers
         "#corePriceDisplay_desktop_feature_div .a-offscreen",
         "#tp_price_block_total_price_ww"
       ]
+    end
+
+    def name_selectors
+      [
+        "#productTitle",
+        "h1.product-title"
+      ] + super
+    end
+
+    def image_selectors
+      [
+        { selector: "#landingImage", attr: "src" },
+        { selector: ".a-dynamic-image", attr: "src" },
+        { selector: "[data-old-hires]", attr: "data-old-hires" }
+      ] + super
     end
   end
 end
