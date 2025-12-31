@@ -8,13 +8,48 @@ default: &default
   password: <%= ENV["DB_PASSWORD"] %>
 
 development:
-  <<: *default
-  database: seeker_development
+  primary:
+    <<: *default
+    database: seeker_development
+    sslmode: disable
+
+  queue:
+    <<: *default
+    database: seeker_development
+    sslmode: disable
+
+  cache:
+    <<: *default
+    database: seeker_development
+    sslmode: disable
+
+  cable:
+    <<: *default
+    database: seeker_development
+    sslmode: disable
 
 test:
   <<: *default
   database: seeker_test
+  sslmode: disable
 
 production:
-  <<: *default
-  database: seeker_production
+  primary:
+    <<: *default
+    database: <%= ENV["DB_NAME"] %>
+    sslmode: require
+
+  queue:
+    <<: *default
+    database: <%= ENV["DB_NAME"] %>
+    sslmode: require
+
+  cache:
+    <<: *default
+    database: <%= ENV["DB_NAME"] %>
+    sslmode: require
+
+  cable:
+    <<: *default
+    database: <%= ENV["DB_NAME"] %>
+    sslmode: require
