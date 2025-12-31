@@ -150,8 +150,6 @@ class ProductScraper
       SiteParsers::AmazonParser
     when /target\./
       SiteParsers::TargetParser
-    when /bestbuy\./
-      SiteParsers::BestbuyParser
     else
       SiteParsers::BaseParser
     end
