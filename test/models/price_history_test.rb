@@ -31,6 +31,16 @@ class PriceHistoryTest < ActiveSupport::TestCase
     assert_equal :down, PriceHistory.trend_for_product(product, days: 7)
   end
 
+  test "trend_for_product returns stable when prices unchanged" do
+  product = products(:one)
+
+  PriceHistory.create!(product: product, price: 100, recorded_at: 6.days.ago)
+  PriceHistory.create!(product: product, price: 100, recorded_at: 1.day.ago)
+
+  trend = PriceHistory.trend_for_product(product, days: 7)
+  assert_equal :stable, trend
+end
+
   test "lowest_in_period returns minimum price" do
     product = products(:one)
 
