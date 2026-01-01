@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_12_29_204506) do
+ActiveRecord::Schema[8.1].define(version: 2026_01_01_044708) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -27,12 +27,25 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_29_204506) do
     t.index ["user_id"], name: "index_price_alerts_on_user_id"
   end
 
+  create_table "price_histories", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.decimal "price", precision: 10, scale: 2, null: false
+    t.bigint "product_id", null: false
+    t.datetime "recorded_at", null: false
+    t.string "source"
+    t.datetime "updated_at", null: false
+    t.index ["product_id", "recorded_at"], name: "index_price_histories_on_product_id_and_recorded_at"
+    t.index ["product_id"], name: "index_price_histories_on_product_id"
+    t.index ["recorded_at"], name: "index_price_histories_on_recorded_at"
+  end
+
   create_table "products", force: :cascade do |t|
     t.string "check_status", default: "pending"
     t.datetime "created_at", null: false
     t.decimal "current_price", precision: 10, scale: 2
+    t.string "image_url"
     t.datetime "last_checked_at"
-    t.string "name", null: false
+    t.string "name"
     t.string "sku"
     t.datetime "updated_at", null: false
     t.string "url", null: false
@@ -48,6 +61,27 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_29_204506) do
     t.string "user_agent"
     t.bigint "user_id", null: false
     t.index ["user_id"], name: "index_sessions_on_user_id"
+  end
+
+  create_table "solid_cable_messages", force: :cascade do |t|
+    t.binary "channel", null: false
+    t.bigint "channel_hash", null: false
+    t.datetime "created_at", null: false
+    t.binary "payload", null: false
+    t.index ["channel"], name: "index_solid_cable_messages_on_channel"
+    t.index ["channel_hash"], name: "index_solid_cable_messages_on_channel_hash"
+    t.index ["created_at"], name: "index_solid_cable_messages_on_created_at"
+  end
+
+  create_table "solid_cache_entries", force: :cascade do |t|
+    t.integer "byte_size", null: false
+    t.datetime "created_at", null: false
+    t.binary "key", null: false
+    t.bigint "key_hash", null: false
+    t.binary "value", null: false
+    t.index ["byte_size"], name: "index_solid_cache_entries_on_byte_size"
+    t.index ["key_hash", "byte_size"], name: "index_solid_cache_entries_on_key_hash_and_byte_size"
+    t.index ["key_hash"], name: "index_solid_cache_entries_on_key_hash", unique: true
   end
 
   create_table "solid_queue_blocked_executions", force: :cascade do |t|
@@ -184,6 +218,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_29_204506) do
 
   add_foreign_key "price_alerts", "products"
   add_foreign_key "price_alerts", "users"
+  add_foreign_key "price_histories", "products"
   add_foreign_key "sessions", "users"
   add_foreign_key "solid_queue_blocked_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_claimed_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade

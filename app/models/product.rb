@@ -1,6 +1,7 @@
 class Product < ApplicationRecord
   has_many :price_alerts, dependent: :destroy
   has_many :users, through: :price_alerts
+  has_many :price_histories, dependent: :destroy
 
   validates :url, presence: true, uniqueness: true
   validates :current_price, numericality: { greater_than_or_equal_to: 0 }, allow_nil: true
@@ -23,5 +24,32 @@ class Product < ApplicationRecord
     end
   rescue URI::InvalidURIError
     errors.add(:url, "invalid URL")
+  end
+
+  def lowest_price
+    price_histories.minimum(:price) || current_price
+  end
+
+  def highest_price
+    price_histories.maximum(:price) || current_price
+  end
+
+  def average_price(days: 30)
+    PriceHistory.average_price(self, days: days)
+  end
+
+  def price_trend(days: 7)
+    PriceHistory.trend_for_product(self, days: days)
+  end
+
+  def price_change_percentage
+    return 0 unless price_histories.any?
+
+    oldest = price_histories.order(:recorded_at).first.price
+    current = current_price || 0
+
+    return 0 if oldest.zero?
+
+    ((current - oldest) / oldest * 100).round(2)
   end
 end
