@@ -197,6 +197,14 @@ class ProductScraper
 
     @product.update(update_attrs)
 
+    if price_changed?(price)
+      @product.price_histories.create!(
+        price: price,
+        recorded_at: Time.current,
+        source: strategy
+      )
+    end
+
     Rails.logger.info "Site scraped using #{strategy}" if strategy
 
     broadcast_price_update
@@ -230,5 +238,17 @@ class ProductScraper
     )
   rescue => e
     Rails.logger.error "BROADCAST ERROR: #{e.message}"
+  end
+
+  def price_changed?(new_price)
+    return true if @product.price_histories.empty?
+
+    last_recorded = @product.price_histories.order(:recorded_at).last
+    return true unless last_recorded
+
+    price_diff = (new_price - last_recorded.price).abs / last_recorded.price
+    time_diff = Time.current - last_recorded.recorded_at
+
+    price_diff > 0.01 || time_diff > 1.day
   end
 end

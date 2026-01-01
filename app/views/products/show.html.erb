@@ -92,6 +92,35 @@
     <% end %>
   </div>
 
+  <% if @product.price_histories.any? %>
+    <div class="bg-white rounded-xl shadow-sm ring-1 ring-black/5 p-7 sm:p-8 mb-6">
+      <h2 class="text-lg font-semibold text-gray-900 mb-6">Price History</h2>
+
+      <div class="grid grid-cols-3 gap-4 mb-6">
+        <div>
+          <p class="text-xs text-gray-600 mb-1">Lowest Price</p>
+          <p class="text-xl font-semibold text-green-600">
+            $<%= number_with_precision(@product.lowest_price, precision: 2) %>
+          </p>
+        </div>
+
+        <div>
+          <p class="text-xs text-gray-600 mb-1">Highest Price</p>
+          <p class="text-xl font-semibold text-red-600">
+            $<%= number_with_precision(@product.highest_price, precision: 2) %>
+          </p>
+        </div>
+
+        <div>
+          <p class="text-xs text-gray-600 mb-1">30-Day Average</p>
+          <p class="text-xl font-semibold text-gray-900">
+            $<%= number_with_precision(@product.average_price(days: 30), precision: 2) %>
+          </p>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
   <div class="bg-white rounded-xl shadow-sm ring-1 ring-black/5 p-7 sm:p-8">
     <% if @price_alert %>
       <div class="flex items-center justify-between mb-6">

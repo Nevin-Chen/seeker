@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_12_30_205006) do
+ActiveRecord::Schema[8.1].define(version: 2026_01_01_044708) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -25,6 +25,18 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_30_205006) do
     t.index ["product_id"], name: "index_price_alerts_on_product_id"
     t.index ["user_id", "product_id"], name: "index_price_alerts_on_user_id_and_product_id", unique: true
     t.index ["user_id"], name: "index_price_alerts_on_user_id"
+  end
+
+  create_table "price_histories", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.decimal "price", precision: 10, scale: 2, null: false
+    t.bigint "product_id", null: false
+    t.datetime "recorded_at", null: false
+    t.string "source"
+    t.datetime "updated_at", null: false
+    t.index ["product_id", "recorded_at"], name: "index_price_histories_on_product_id_and_recorded_at"
+    t.index ["product_id"], name: "index_price_histories_on_product_id"
+    t.index ["recorded_at"], name: "index_price_histories_on_recorded_at"
   end
 
   create_table "products", force: :cascade do |t|
@@ -206,6 +218,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_30_205006) do
 
   add_foreign_key "price_alerts", "products"
   add_foreign_key "price_alerts", "users"
+  add_foreign_key "price_histories", "products"
   add_foreign_key "sessions", "users"
   add_foreign_key "solid_queue_blocked_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_claimed_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
