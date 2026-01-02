@@ -1,0 +1,40 @@
+<div
+  data-modal-target="container"
+  class="hidden fixed inset-0 z-50 overflow-y-auto"
+  aria-labelledby="modal-title"
+  role="dialog"
+  aria-modal="true"
+  data-action="click->modal#closeOnOutsideClick"
+>
+  <div class="fixed inset-0 bg-black/30 backdrop-blur-sm transition-opacity"></div>
+
+  <div class="flex min-h-full items-center justify-center p-4">
+    <div class="relative transform overflow-hidden rounded-xl bg-white shadow-xl ring-1 ring-black/5 transition-all w-full max-w-lg">
+
+      <div class="px-6 py-5">
+        <h3 class="text-lg font-semibold text-gray-900 mb-2" id="modal-title">
+          <%= title %>
+        </h3>
+        <p class="text-sm text-gray-600">
+          <%= message %>
+        </p>
+      </div>
+
+      <div class="border-t border-gray-100 px-6 py-4 flex items-center justify-end gap-3">
+        <button
+          type="button"
+          data-action="modal#close"
+          class="px-4 py-2 text-sm font-medium rounded-full whitespace-nowrap text-gray-700 hover:bg-gray-300 hover:text-gray-900 transition cursor-pointer"
+        >
+          Cancel
+        </button>
+
+        <%= button_to path,
+              method: method,
+              class: "inline-flex items-center gap-1.5 rounded-full border border-transparent bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 transition cursor-pointer" do %>
+          <%= button_text %>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
