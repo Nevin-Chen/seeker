@@ -11,12 +11,6 @@
       <h1 class="mt-8 text-base/6 font-medium">Forgot your password?</h1>
       <p class="mt-1 text-sm/5 text-gray-600">Enter your email and we'll send you reset instructions.</p>
 
-      <% if flash[:alert] %>
-        <div class="mt-6 rounded-lg bg-red-50 p-4 ring-1 ring-red-200">
-          <p class="text-sm text-red-800"><%= flash[:alert] %></p>
-        </div>
-      <% end %>
-
       <div class="mt-8 space-y-3">
         <%= form.label :email_address, "Email", class: "text-sm/5 font-medium" %>
         <%= form.email_field :email_address,
