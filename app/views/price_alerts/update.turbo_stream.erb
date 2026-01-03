@@ -1,0 +1,9 @@
+<%= turbo_stream.replace "price_alert_#{@price_alert.id}" do %>
+  <%= render "price_alerts/alert_target_price", price_alert: @price_alert, error: @price_alert.errors.full_messages.join(', ') %>
+<% end %>
+
+<%= turbo_stream.replace "price_alert_#{@price_alert.id}_card" do %>
+  <div id="price_alert_<%= @price_alert.id %>_card">
+    <%= render "price_alerts/alert_target_price_card", price_alert: @price_alert %>
+  </div>
+<% end %>

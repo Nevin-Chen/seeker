@@ -10,6 +10,12 @@ two:
   target_price: 550.00
   active: true
 
+three:
+  product: one
+  user: two
+  target_price: 200.00
+  active: true
+
 above_target_alert:
   product: two
   user: two
