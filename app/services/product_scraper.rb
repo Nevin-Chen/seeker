@@ -230,14 +230,18 @@ class ProductScraper
   end
 
   def broadcast_price_update
-    Turbo::StreamsChannel.broadcast_replace_to(
-      @product,
-      target: "product_#{@product.id}_price",
-      partial: "products/product_price",
-      locals: { product: @product.reload, price_alert: @product.price_alerts.first }
+    price_alert = @product.price_alerts.first
+
+    ActionCable.server.broadcast(
+      "product_updates_#{@product.id}",
+      {
+        target: "product_#{@product.id}_details",
+        html: ApplicationController.render(
+          partial: "products/product_details",
+          locals: { product: @product.reload, price_alert: price_alert }
+        )
+      }
     )
-  rescue => e
-    Rails.logger.error "BROADCAST ERROR: #{e.message}"
   end
 
   def price_changed?(new_price)

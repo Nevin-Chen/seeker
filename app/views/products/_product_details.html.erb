@@ -1,0 +1,72 @@
+<div id="product_<%= product.id %>_details">
+  <div class="flex items-center gap-5 mb-6">
+    <% if product.image_url.present? %>
+      <div class="w-28 h-28 flex-shrink-0 rounded-lg overflow-hidden bg-gray-100">
+        <%= image_tag product.image_url,
+                    alt: product.name,
+                    class: "w-full h-full object-cover",
+                    loading: "lazy",
+                    onerror: "this.style.display='none'" %>
+      </div>
+    <% end %>
+
+    <div class="min-w-0">
+      <h1 class="text-2xl font-semibold text-gray-900 mb-2">
+        <%= product.name %>
+      </h1>
+
+      <div class="text-sm">
+        <span class="font-medium text-gray-700">Product URL</span>
+        <div class="mt-1">
+          <%= link_to safe_product_url(product),
+                      target: "_blank",
+                      rel: "noopener noreferrer",
+                      class: "text-gray-600 hover:text-gray-900 break-all inline-flex items-center gap-1 transition-colors" do %>
+            <%= truncate(safe_product_url(product), length: 60) %>
+            <svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+            </svg>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <% if product.sku.present? %>
+      <div class="text-sm">
+        <span class="font-medium text-gray-700">SKU</span>
+        <div class="mt-1 text-gray-900"><%= product.sku %></div>
+      </div>
+    <% end %>
+  </div>
+  
+  <% if product.current_price %>
+    <div class="border-t border-gray-100 pt-6 mt-6">
+      <div class="grid grid-cols-2 gap-6">
+        <div>
+          <p class="text-sm text-gray-600 mb-2">Current Price</p>
+          <p class="text-3xl font-semibold text-gray-900">
+            $<%= number_with_precision(product.current_price, precision: 2) %>
+          </p>
+          <p class="text-xs text-gray-500 mt-2">
+            Last checked <%= time_ago_in_words(product.last_checked_at) %> ago
+          </p>
+        </div>
+
+        <% if price_alert %>
+          <%= render "price_alerts/alert_target_price", price_alert: price_alert %>
+        <% end %>
+      </div>
+    </div>
+  <% else %>
+    <div class="border-t border-gray-100 pt-6 mt-6">
+      <div class="flex items-center gap-2 text-gray-500 text-sm">
+        <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+        Checking price...
+      </div>
+    </div>
+  <% end %>
+</div>
