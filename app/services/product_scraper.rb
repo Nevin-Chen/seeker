@@ -243,6 +243,8 @@ class ProductScraper
         )
       }
     )
+  rescue => e
+    Rails.logger.error "Failed to broadcast price update for product #{@product.id}: #{e.message}"
   end
 
   def price_changed?(new_price)
