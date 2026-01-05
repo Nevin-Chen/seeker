@@ -8,10 +8,19 @@ class ProductsController < ApplicationController
   end
 
   def new
+    if Current.user.price_alerts.count >= User::MAX_ALERTS_PER_USER
+      redirect_to price_alerts_path, alert: "You've reached the maximum of #{User::MAX_ALERTS_PER_USER} price alerts"
+      return
+    end
     @product = Product.new
   end
 
   def create
+    if Current.user.price_alerts.count >= User::MAX_ALERTS_PER_USER
+      redirect_to price_alerts_path, alert: "You've reached the maximum of #{User::MAX_ALERTS_PER_USER} price alerts"
+      return
+    end
+
     @product = Product.find_or_initialize_by(url: product_params[:url])
 
     if @product.new_record?

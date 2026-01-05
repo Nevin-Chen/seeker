@@ -11,7 +11,7 @@ class PriceAlertTest < ActiveSupport::TestCase
 
     @product = Product.create!(
       name: "Christmas Decoration Set (12 Pieces)",
-      url: "https://seeker.com/product/christmas_set_12"
+      url: "https://amazon.com/product/christmas_set_12"
     )
   end
 
@@ -147,7 +147,7 @@ class PriceAlertTest < ActiveSupport::TestCase
 
     inactive_alert = PriceAlert.create!(
       user: @user,
-      product: Product.create!(name: "Product 2", url: "https://example.com/test2"),
+      product: Product.create!(name: "Product 2", url: "https://amazon.com/a_product"),
       target_price: 99.99,
       active: false
     )
@@ -166,7 +166,7 @@ class PriceAlertTest < ActiveSupport::TestCase
 
     product2 = Product.create!(
       name: "Product 2",
-      url: "https://example.com/test2",
+      url: "https://target.com/a_product",
       current_price: 100.00
     )
     not_triggered_alert = PriceAlert.create!(
@@ -177,5 +177,138 @@ class PriceAlertTest < ActiveSupport::TestCase
 
     assert_includes PriceAlert.triggered, triggered_alert
     refute_includes PriceAlert.triggered, not_triggered_alert
+  end
+
+  test "user can create up to MAX_ALERTS_PER_USER alerts" do
+    (User::MAX_ALERTS_PER_USER - 1).times do |i|
+      product = Product.create!(
+        url: "https://amazon.com/product/#{i}"
+      )
+      PriceAlert.create!(
+        user: @user,
+        product: product,
+        target_price: 99.99
+      )
+    end
+
+    alert = PriceAlert.new(
+      user: @user,
+      product: @product,
+      target_price: 99.99
+    )
+
+    assert alert.valid?
+    assert alert.save
+    assert_equal User::MAX_ALERTS_PER_USER, @user.price_alerts.count
+  end
+
+  test "user cannot exceed MAX_ALERTS_PER_USER alerts" do
+    User::MAX_ALERTS_PER_USER.times do |i|
+      product = Product.create!(
+        url: "https://amazon.com/product/#{i}"
+      )
+      PriceAlert.create!(
+        user: @user,
+        product: product,
+        target_price: 99.99
+      )
+    end
+
+    extra_product = Product.create!(
+      url: "https://amazon.com/product/extra"
+    )
+    alert = PriceAlert.new(
+      user: @user,
+      product: extra_product,
+      target_price: 99.99
+    )
+
+    refute alert.valid?
+    assert_includes alert.errors[:base], "You can only have #{User::MAX_ALERTS_PER_USER} active price alerts"
+  end
+
+  test "different users can each have MAX_ALERTS_PER_USER alerts" do
+    other_user = User.create!(
+      username: "seeker_two",
+      email_address: "other@seeker.com",
+      password: "password123",
+      password_confirmation: "password123"
+    )
+
+    User::MAX_ALERTS_PER_USER.times do |i|
+      product = Product.create!(
+        url: "https://amazon.com/product/user1_#{i}"
+      )
+      PriceAlert.create!(
+        user: @user,
+        product: product,
+        target_price: 99.99
+      )
+    end
+
+    product = Product.create!(
+      url: "https://amazon.com/product/user2_1"
+    )
+    alert = PriceAlert.new(
+      user: other_user,
+      product: product,
+      target_price: 99.99
+    )
+
+    assert alert.valid?
+    assert alert.save
+  end
+
+  test "inactive alerts count toward MAX_ALERTS_PER_USER limit" do
+    User::MAX_ALERTS_PER_USER.times do |i|
+      product = Product.create!(
+        url: "https://amazon.com/product/#{i}"
+      )
+      PriceAlert.create!(
+        user: @user,
+        product: product,
+        target_price: 99.99,
+        active: i.even?
+      )
+    end
+
+    extra_product = Product.create!(
+      url: "https://amazon.com/product/extra"
+    )
+    alert = PriceAlert.new(
+      user: @user,
+      product: extra_product,
+      target_price: 99.99
+    )
+
+    refute alert.valid?
+  end
+
+  test "deleting alert allows user to create new one at limit" do
+    alerts = []
+    User::MAX_ALERTS_PER_USER.times do |i|
+      product = Product.create!(
+        url: "https://amazon.com/product/#{i}"
+      )
+      alerts << PriceAlert.create!(
+        user: @user,
+        product: product,
+        target_price: 99.99
+      )
+    end
+
+    alerts.first.destroy
+
+    new_product = Product.create!(
+      url: "https://amazon.com/product/new"
+    )
+    alert = PriceAlert.new(
+      user: @user,
+      product: new_product,
+      target_price: 99.99
+    )
+
+    assert alert.valid?
+    assert alert.save
   end
 end
