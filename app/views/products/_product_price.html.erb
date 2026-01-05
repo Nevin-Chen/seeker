@@ -1,0 +1,31 @@
+<div id="product_<%= product.id %>_price">
+  <% if product.current_price %>
+    <div class="border-t border-gray-100 pt-6 mt-6">
+      <div class="grid grid-cols-2 gap-6">
+        <div>
+          <p class="text-sm text-gray-600 mb-2">Current Price</p>
+          <p class="text-3xl font-semibold text-gray-900">
+            $<%= number_with_precision(product.current_price, precision: 2) %>
+          </p>
+          <p class="text-xs text-gray-500 mt-2">
+            Last checked <%= time_ago_in_words(product.last_checked_at) %> ago
+          </p>
+        </div>
+
+        <% if price_alert %>
+          <%= render "price_alerts/alert_target_price", price_alert: price_alert %>
+        <% end %>
+      </div>
+    </div>
+  <% else %>
+    <div class="border-t border-gray-100 pt-6 mt-6">
+      <div class="flex items-center gap-2 text-gray-500 text-sm">
+        <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+        Checking price...
+      </div>
+    </div>
+  <% end %>
+</div>
