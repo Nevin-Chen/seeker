@@ -1,4 +1,6 @@
 class User < ApplicationRecord
+  MAX_ALERTS_PER_USER = 5
+
   has_secure_password
   has_many :sessions, dependent: :destroy
 

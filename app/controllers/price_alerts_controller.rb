@@ -7,6 +7,11 @@ class PriceAlertsController < ApplicationController
   end
 
   def create
+    if current_user.price_alerts.count >= User::MAX_ALERTS_PER_USER
+      redirect_to price_alerts_path, alert: "You've reached the maximum of #{User::MAX_ALERTS_PER_USER} price alerts"
+      return
+    end
+
     @product = Product.find(params[:product_id])
     @price_alert = Current.user.price_alerts.build(
       product: @product,

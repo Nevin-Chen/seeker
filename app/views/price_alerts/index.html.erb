@@ -14,7 +14,7 @@
 
 <% if @price_alerts.any? %>
   <%
-    pending = @price_alerts.select { |a| a.product.current_price.nil? || a.product.check_status == 'pending' }
+    pending = @price_alerts.select { |a| a.product.check_status == 'pending' }
     errors = @price_alerts.select { |a| !pending.include?(a) && a.product.check_status.in?(%w[blocked error]) }
     target_reached = @price_alerts.select { |a| !pending.include?(a) && !errors.include?(a) && a.price_dropped? }
     paused = @price_alerts.select { |a| !pending.include?(a) && !errors.include?(a) && !target_reached.include?(a) && !a.active? }
@@ -29,9 +29,9 @@
         <span class="text-xs text-gray-500"><%= pending.count %></span>
       </div>
       <div class="space-y-3 flex-1 bg-default rounded-lg p-3 min-h-[200px]">
-        <% pending.each do |alert| %>
+        <% pending.each do |price_alert| %>
           <div data-controller="modal">
-            <%= render partial: 'alert_card', locals: { alert: alert, status: 'pending' } %>
+            <%= render partial: 'alert_card', locals: { price_alert: price_alert, status: 'pending' } %>
           </div>
         <% end %>
         <% if pending.empty? %>
@@ -65,9 +65,9 @@
         <span class="text-xs text-gray-500"><%= target_reached.count %></span>
       </div>
       <div class="space-y-3 flex-1 bg-default rounded-lg p-3 min-h-[200px]">
-        <% target_reached.each do |alert| %>
+        <% target_reached.each do |price_alert| %>
           <div data-controller="modal">
-            <%= render partial: 'alert_card', locals: { alert: alert, status: 'reached' } %>
+            <%= render partial: 'alert_card', locals: { price_alert: price_alert, status: 'reached' } %>
           </div>
         <% end %>
         <% if target_reached.empty? %>
@@ -83,9 +83,9 @@
         <span class="text-xs text-gray-500"><%= paused.count %></span>
       </div>
       <div class="space-y-3 flex-1 bg-default rounded-lg p-3 min-h-[200px]">
-        <% paused.each do |alert| %>
+        <% paused.each do |price_alert| %>
           <div data-controller="modal">
-            <%= render partial: 'alert_card', locals: { alert: alert, status: 'paused' } %>
+            <%= render partial: 'alert_card', locals: { price_alert: price_alert, status: 'paused' } %>
           </div>
         <% end %>
         <% if paused.empty? %>
@@ -103,9 +103,9 @@
         <span class="text-xs text-gray-500"><%= errors.count %></span>
       </div>
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
-        <% errors.each do |alert| %>
+        <% errors.each do |price_alert| %>
           <div data-controller="modal">
-            <%= render partial: 'alert_card', locals: { alert: alert, status: 'error' } %>
+            <%= render partial: 'alert_card', locals: { price_alert: price_alert, status: 'error' } %>
           </div>
         <% end %>
       </div>

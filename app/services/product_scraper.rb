@@ -51,7 +51,8 @@ class ProductScraper
     response = HTTParty.get(@url,
       headers: random_headers,
       timeout: 10,
-      follow_redirects: true
+      follow_redirects: true,
+      max_redirects: 3
     )
 
     return nil unless response.success?
@@ -86,7 +87,7 @@ class ProductScraper
           "User-Agent" => USER_AGENTS.sample
         )
 
-        page.goto(@url, timeout: 60_000, waitUntil: "domcontentloaded")
+        page.goto(@url, timeout: 20_000, waitUntil: "domcontentloaded")
 
         dismiss_popups(page)
 
@@ -242,6 +243,8 @@ class ProductScraper
         )
       }
     )
+  rescue => e
+    Rails.logger.error "Failed to broadcast price update for product #{@product.id}: #{e.message}"
   end
 
   def price_changed?(new_price)
