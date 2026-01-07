@@ -14,7 +14,7 @@ class ProductScraper
   end
 
   def scrape
-    # Rate limit
+    # Rate limit based on domain
     last_scrape = Rails.cache.read("last_scrape:#{@domain}")
 
     if last_scrape && last_scrape > 5.seconds.ago
