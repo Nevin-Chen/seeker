@@ -12,98 +12,13 @@
   </head>
 
   <body class="bg-main">
-    <header class="sticky top-0 z-50 bg-main">
-      <nav>
-        <div class="flex-auto mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative z-50 flex justify-between py-8">
-          <div class="relative z-10 flex items-center gap-16">
-            <%= link_to root_path, aria: { label: "Home" }, class: "flex items-center gap-2 font-bold text-gray-900 group" do %>
-              <svg viewBox="340 80 170 200" class="w-[35px] h-[22px]" xmlns="http://www.w3.org/2000/svg"><style>.hover-rect{width:0;transition:width 0.7s;}.group:hover .hover-rect{width:170px;}</style><path d="M500.033,264.883c-3.503-7.098-78.448-130.636-80.347-133.721c-13.99-22.704-38.24-36.258-64.869-36" class="fill-gray-300"></path><rect class="fill-black hover-rect" height="200" y="80" x="340" clip-path="url(#icon-clip)"></rect><defs><clipPath id="icon-clip"><path d="M500.033,264.883c-3.503-7.098-78.448-130.636-80.347-133.721c-13.99-22.704-38.24-36.258-64.869-36"/></clipPath></defs></svg>
-              <span>Seeker</span>
-            <% end %>
-
-            <% if authenticated? %>
-              <div class="hidden lg:flex lg:gap-10">
-                <%= link_to "My Alerts", price_alerts_path, class: "relative -mx-3 -my-2 rounded-lg px-3 py-2 text-sm text-gray-700 transition-colors delay-150 hover:text-gray-900 hover:delay-0" %>
-              </div>
-            <% end %>
-          </div>
-
-          <div class="flex items-center gap-6">
-            <% if authenticated? %>
-              <div data-controller="user-menu" class="relative">
-                <button
-                  type="button"
-                  data-action="click->user-menu#toggle"
-                  class="flex h-8 w-8 items-center justify-center rounded-full bg-brand-500 text-sm font-semibold text-white focus:outline-none cursor-pointer"
-                  aria-haspopup="true"
-                >
-                  <%= Current.user.username.first.upcase %>
-                </button>
-
-                <div
-                  data-user-menu-target="menu"
-                  class="absolute right-0 z-20 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black/5
-                        opacity-0 scale-95 pointer-events-none
-                        transition transform ease-out duration-100"
-                  role="menu"
-                >
-                  <div class="px-4 py-3">
-                    <div class="flex items-center gap-3">
-                      <div class="flex h-8 w-8 items-center justify-center rounded-full bg-brand-500 text-sm font-semibold text-white">
-                        <%= Current.user.username.first.upcase %>
-                      </div>
-
-                      <div class="text-sm font-medium text-gray-900">
-                        <%= Current.user.username %>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div class="mx-4 my-1 h-px bg-gray-100"></div>
-
-                  <%= button_to "Sign out", session_path, method: :delete,
-                    class: "w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
-                  %>
-                </div>
-              </div>
-            <% else %>
-              <%= link_to "Log in", login_path,
-                    class: "relative inline-flex items-center justify-center px-4 py-2 rounded-full text-base font-medium whitespace-nowrap text-gray-700 hover:bg-gray-300 hover:text-gray-900 transition" %>
-
-              <%= link_to "Sign up", signup_path,
-                    class: "relative inline-flex items-center justify-center px-4 py-2 rounded-full border border-transparent bg-gray-950 shadow-md text-base font-medium whitespace-nowrap text-white hover:bg-gray-800 transition" %>
-            <% end %>
-          </div>
-
-        </div>
-      </nav>
-    </header>
+    <%= render "layouts/header" %>
 
     <main class="flex-auto mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative">
       <%= render "layouts/flash" %>
       <%= yield %>
     </main>
 
-    <footer class="border-t border-gray-200 mt-8">
-      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div class="flex flex-col items-center border-t border-slate-400/10 py-10 sm:flex-row-reverse sm:justify-between">
-          <div class="flex gap-x-6">
-            <a aria-label="Linkedin" href="https://www.linkedin.com/in/nevin-chen" target="_blank" rel="noopener noreferrer">
-              <svg class="h-5 w-5 fill-current text-slate-500 hover:text-slate-700" aria-hidden="true" viewBox="0 0 24 24">
-                <path d="M4.98 3.5C4.98 4.88 3.87 6 2.5 6S0 4.88 0 3.5 1.12 1 2.5 1 4.98 2.12 4.98 3.5zM0 8h5V24H0V8zm7.5 0h4.75v2.16h.07c.66-1.25 2.28-2.57 4.69-2.57C21.59 7.59 24 10.1 24 14.45V24h-5v-8.16c0-1.95-.04-4.45-2.71-4.45-2.71 0-3.13 2.12-3.13 4.31V24h-5V8z"/>
-              </svg>
-            </a>
-
-            <a aria-label="GitHub" href="https://github.com/Nevin-Chen/seeker" target="_blank" rel="noopener noreferrer">
-              <svg class="h-6 w-6 fill-slate-500 hover:fill-slate-700" aria-hidden="true" viewBox="0 0 24 24">
-                <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0 1 12 6.844a9.59 9.59 0 0 1 2.504.337c1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.02 10.02 0 0 0 22 12.017C22 6.484 17.522 2 12 2Z">
-                </path>
-              </svg>
-            </a>
-          </div>
-          <p class="mt-6 text-sm text-slate-500 sm:mt-0">© <%= Time.current.year %> Seeker</p>
-        </div>
-      </div>
-    </footer>
+    <%= render "layouts/footer" %>
   </body>
 </html>
