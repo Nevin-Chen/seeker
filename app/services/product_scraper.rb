@@ -209,7 +209,7 @@ class ProductScraper
     Rails.logger.info "Site scraped using #{strategy}" if strategy
 
     broadcast_price_update
-    check_and_notify_alerts(price)
+    check_and_notify_alerts
   end
 
   def handle_error(message)
@@ -221,12 +221,11 @@ class ProductScraper
     broadcast_price_update
   end
 
-  def check_and_notify_alerts(price)
-    triggered = @product.price_alerts.active.where("target_price >= ?", price)
+  def check_and_notify_alerts
+    triggered = @product.price_alerts.active.triggered
 
     triggered.find_each do |alert|
-      Rails.logger.info "Alert triggered: #{alert.user.username} - #{@product.name} at $#{price}"
-      alert.update(last_notified_at: Time.current)
+      alert.update!(last_notified_at: Time.current, active: false)
     end
   end
 
