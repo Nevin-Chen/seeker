@@ -21,6 +21,10 @@ class PriceAlert < ApplicationRecord
     (new_record? || will_save_change_to_target_price?)
   end
 
+  def should_notify?
+    price_dropped? && last_notified_at.nil?
+  end
+
   private
 
   def check_user_alert_limit
