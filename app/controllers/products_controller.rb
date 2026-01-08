@@ -28,6 +28,16 @@ class ProductsController < ApplicationController
     end
 
     if @product.save
+      target_price = product_params[:target_price].to_f
+
+      if @product.current_price && target_price >= @product.current_price
+        @product.destroy
+        @product = Product.new(product_params.except(:target_price))
+        @product.errors.add(:target_price, "must be lower than current price.")
+        render :new, status: :unprocessable_entity
+        return
+      end
+
       @price_alert = Current.user.price_alerts.build(
         product: @product,
         target_price: product_params[:target_price]
@@ -37,6 +47,9 @@ class ProductsController < ApplicationController
         PriceCheckJob.perform_later(@product.id)
         redirect_to @product
       else
+        @price_alert.errors.each do |error|
+          @product.errors.add(:target_price, error.full_message)
+        end
         render :new, status: :unprocessable_entity
       end
     else

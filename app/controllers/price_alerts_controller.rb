@@ -7,7 +7,7 @@ class PriceAlertsController < ApplicationController
   end
 
   def create
-    if current_user.price_alerts.count >= User::MAX_ALERTS_PER_USER
+    if Current.user.price_alerts.count >= User::MAX_ALERTS_PER_USER
       redirect_to price_alerts_path, alert: "You've reached the maximum of #{User::MAX_ALERTS_PER_USER} price alerts"
       return
     end
@@ -28,47 +28,16 @@ class PriceAlertsController < ApplicationController
   def update
     @price_alert = Current.user.price_alerts.find(params[:id])
 
-    @price_alert.assign_attributes(price_alert_params)
-
-    unless @price_alert.changed?
-      respond_to do |format|
-        format.turbo_stream do
-          render turbo_stream: [
-            turbo_stream.replace("price_alert_#{@price_alert.id}",
-              partial: "price_alerts/alert_target_price",
-              locals: { price_alert: @price_alert }
-            ),
-            turbo_stream.replace("price_alert_#{@price_alert.id}_card",
-              partial: "price_alerts/alert_target_price_card",
-              locals: { price_alert: @price_alert }
-            )
-          ]
-        end
-        format.html { redirect_to @price_alert.product, notice: "No changes made" }
-      end
-      return
-    end
-
-    if @price_alert.save
+    if @price_alert.update(price_alert_params)
       respond_to do |format|
         format.turbo_stream
         format.html { redirect_to @price_alert.product, notice: "Target price updated" }
       end
     else
+      @price_alert.reload
       respond_to do |format|
-        format.turbo_stream do
-          render turbo_stream: [
-            turbo_stream.replace("price_alert_#{@price_alert.id}",
-              partial: "price_alerts/alert_target_price",
-              locals: { price_alert: @price_alert, error: @price_alert.errors.full_messages.join(", ") }
-            ),
-            turbo_stream.replace("price_alert_#{@price_alert.id}_card",
-              partial: "price_alerts/alert_target_price_card",
-              locals: { price_alert: @price_alert }
-            )
-          ], status: :unprocessable_entity
-        end
-        format.html { redirect_to @price_alert.product, alert: "Failed to update: #{@price_alert.errors.full_messages.join(', ')}" }
+        format.turbo_stream { render :update, status: :unprocessable_entity }
+        format.html { redirect_to @price_alert.product, alert: @price_alert.errors.full_messages.join(", ") }
       end
     end
   end

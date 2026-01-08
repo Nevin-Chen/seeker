@@ -13,6 +13,13 @@ two:
   check_status: "success"
   last_checked_at: <%= 1.day.ago %>
 
+three:
+  name: "Apple AirPods Pro (2nd Generation)"
+  url: "https://target.com/p/2521"
+  current_price: 350.00
+  check_status: "success"
+  last_checked_at: <%= 1.hour.ago %>
+
 pending_product:
   name: "Wrinkle Patches"
   url: "https://www.walmart.com/ip/athbdg=L1800"
