@@ -192,16 +192,22 @@ class ProductScraperTest < ActiveSupport::TestCase
   end
 
   test "update_product triggers alerts for matching prices" do
-    product = products(:one)
-    alert = price_alerts(:one)
-    alert.update!(target_price: 400.00, last_notified_at: nil)
+    product = products(:three)
+    user = users(:one)
+
+    alert = PriceAlert.create!(
+      product: product,
+      user: user,
+      target_price: 280.00,
+      active: true
+    )
 
     scraper = ProductScraper.new(product)
-
-    scraper.send(:update_product, 380.00, "success")
-
+    scraper.send(:update_product, 250.00, "success")
     alert.reload
+
     assert_not_nil alert.last_notified_at
+    assert_equal false, alert.active
   end
 
   test "handle_error sets error status and broadcasts" do
@@ -216,26 +222,33 @@ class ProductScraperTest < ActiveSupport::TestCase
   end
 
   test "check_and_notify_alerts triggers matching alerts" do
-    product = products(:one)
-    alert = price_alerts(:one)
-    alert.update!(target_price: 400.00, last_notified_at: nil, active: true)
+    product = products(:three)
+    user = users(:one)
 
+    alert = PriceAlert.create!(
+      product: product,
+      user: user,
+      target_price: 320.00,
+      active: true
+    )
+
+    product.update!(current_price: 250.00)
     scraper = ProductScraper.new(product)
-
-    scraper.send(:check_and_notify_alerts, 380.00)
+    scraper.send(:check_and_notify_alerts)
 
     alert.reload
     assert_not_nil alert.last_notified_at
+    assert_equal false, alert.active
   end
 
   test "check_and_notify_alerts ignores inactive alerts" do
     product = products(:one)
     alert = price_alerts(:one)
-    alert.update!(target_price: 400.00, last_notified_at: nil, active: false)
+    alert.update!(target_price: 320.00, last_notified_at: nil, active: false)
 
     scraper = ProductScraper.new(product)
 
-    scraper.send(:check_and_notify_alerts, 380.00)
+    scraper.send(:check_and_notify_alerts)
 
     alert.reload
     assert_nil alert.last_notified_at
@@ -248,7 +261,7 @@ class ProductScraperTest < ActiveSupport::TestCase
 
     scraper = ProductScraper.new(product)
 
-    scraper.send(:check_and_notify_alerts, 200.00)
+    scraper.send(:check_and_notify_alerts)
 
     alert.reload
     assert_nil alert.last_notified_at

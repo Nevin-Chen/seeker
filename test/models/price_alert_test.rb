@@ -11,7 +11,8 @@ class PriceAlertTest < ActiveSupport::TestCase
 
     @product = Product.create!(
       name: "Christmas Decoration Set (12 Pieces)",
-      url: "https://amazon.com/product/christmas_set_12"
+      url: "https://amazon.com/product/christmas_set_12",
+      current_price: 200.00
     )
   end
 
@@ -78,12 +79,12 @@ class PriceAlertTest < ActiveSupport::TestCase
   end
 
   test "price_dropped? returns true when price at or below target" do
-    @product.update(current_price: 50.00)
     alert = PriceAlert.create!(
       user: @user,
       product: @product,
       target_price: 75.00
     )
+    @product.update(current_price: 50.00)
 
     assert alert.price_dropped?
   end
@@ -157,12 +158,12 @@ class PriceAlertTest < ActiveSupport::TestCase
   end
 
   test "triggered scope returns alerts where price dropped" do
-    @product.update(current_price: 50.00)
     triggered_alert = PriceAlert.create!(
       user: @user,
       product: @product,
       target_price: 75.00
     )
+    @product.update(current_price: 50.00)
 
     product2 = Product.create!(
       name: "Product 2",
