@@ -312,4 +312,52 @@ class PriceAlertTest < ActiveSupport::TestCase
     assert alert.valid?
     assert alert.save
   end
+
+  test "should_notify? returns true when price dropped and never notified" do
+    alert = PriceAlert.create!(
+      user: @user,
+      product: @product,
+      target_price: 75.00,
+      last_notified_at: nil
+    )
+    @product.update!(current_price: 50.00)
+
+    assert alert.should_notify?
+  end
+
+  test "should_notify? returns false when already notified" do
+    alert = PriceAlert.create!(
+      user: @user,
+      product: @product,
+      target_price: 75.00,
+      last_notified_at: 1.hour.ago
+      )
+    @product.update!(current_price: 50.00)
+
+    refute alert.should_notify?
+  end
+
+  test "should_notify? returns false when price above target" do
+    alert = PriceAlert.create!(
+      user: @user,
+      product: @product,
+      target_price: 75.00,
+      last_notified_at: nil
+    )
+    @product.update!(current_price: 100.00)
+
+    refute alert.should_notify?
+  end
+
+  test "should_notify? returns false when price is nil" do
+    alert = PriceAlert.create!(
+      user: @user,
+      product: @product,
+      target_price: 75.00,
+      last_notified_at: nil
+    )
+    @product.update!(current_price: nil)
+
+    refute alert.should_notify?
+  end
 end

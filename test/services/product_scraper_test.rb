@@ -1,9 +1,13 @@
 require "test_helper"
 
 class ProductScraperTest < ActiveSupport::TestCase
+  include ActionMailer::TestHelper
+
   setup do
     @product = products(:pending_product)
     @scraper = ProductScraper.new(@product)
+    @user = users(:one)
+    @product_three = products(:three)
   end
 
   test "initializes with product and extracts domain" do
@@ -304,6 +308,153 @@ class ProductScraperTest < ActiveSupport::TestCase
     File.stubs(:exist?).returns(false)
 
     assert_equal "playwright", scraper.send(:playwright_path)
+  end
+
+  test "sends notification when price drops below target for first time" do
+    alert = PriceAlert.create!(
+      user: @user,
+      product: @product_three,
+      target_price: 90.00,
+      active: true
+    )
+
+    @product_three.update!(current_price: 85.00)
+    scraper = ProductScraper.new(@product_three)
+
+    assert_enqueued_emails 1 do
+      scraper.send(:check_and_notify_alerts)
+    end
+
+    alert.reload
+    assert_not_nil alert.last_notified_at
+    assert_equal false, alert.active
+  end
+
+  test "does not send notification if already notified" do
+    PriceAlert.create!(
+      user: @user,
+      product: @product_three,
+      target_price: 90.00,
+      active: true,
+      last_notified_at: 1.hour.ago
+    )
+
+    @product_three.update!(current_price: 85.00)
+    scraper = ProductScraper.new(@product_three)
+
+    assert_no_enqueued_emails do
+      scraper.send(:check_and_notify_alerts)
+    end
+  end
+
+  test "does not send notification if price above target" do
+    alert = PriceAlert.create!(
+      user: @user,
+      product: @product_three,
+      target_price: 90.00,
+      active: true
+    )
+
+    @product_three.update!(current_price: 95.00)
+    scraper = ProductScraper.new(@product_three)
+
+    assert_no_enqueued_emails do
+      scraper.send(:check_and_notify_alerts)
+    end
+
+    alert.reload
+    assert_nil alert.last_notified_at
+    assert_equal true, alert.active
+  end
+
+  test "does not send notification if alert is paused" do
+    PriceAlert.create!(
+      user: @user,
+      product: @product_three,
+      target_price: 90.00,
+      active: false
+    )
+
+    @product_three.update!(current_price: 85.00)
+    scraper = ProductScraper.new(@product_three)
+
+    assert_no_enqueued_emails do
+      scraper.send(:check_and_notify_alerts)
+    end
+  end
+
+  test "sends separate notifications for multiple users" do
+    user2 = User.create!(
+      username: "user2",
+      email_address: "user2@example.com",
+      password: "password123",
+      password_confirmation: "password123"
+    )
+
+    alert1 = PriceAlert.create!(
+      user: @user,
+      product: @product_three,
+      target_price: 90.00,
+      active: true
+    )
+
+    alert2 = PriceAlert.create!(
+      user: user2,
+      product: @product_three,
+      target_price: 88.00,
+      active: true
+    )
+
+    @product_three.update!(current_price: 85.00)
+    scraper = ProductScraper.new(@product_three)
+
+    assert_enqueued_emails 2 do
+      scraper.send(:check_and_notify_alerts)
+    end
+
+    alert1.reload
+    alert2.reload
+    assert_not_nil alert1.last_notified_at
+    assert_not_nil alert2.last_notified_at
+    assert_equal false, alert1.active
+    assert_equal false, alert2.active
+  end
+
+  test "only notifies users whose target was reached" do
+    user2 = User.create!(
+      username: "user2",
+      email_address: "user2@example.com",
+      password: "password123",
+      password_confirmation: "password123"
+    )
+
+    alert1 = PriceAlert.create!(
+      user: @user,
+      product: @product_three,
+      target_price: 90.00,
+      active: true
+    )
+
+    alert2 = PriceAlert.create!(
+      user: user2,
+      product: @product_three,
+      target_price: 80.00,
+      active: true
+    )
+
+    @product_three.update!(current_price: 85.00)
+    scraper = ProductScraper.new(@product_three)
+
+    assert_enqueued_emails 1 do
+      scraper.send(:check_and_notify_alerts)
+    end
+
+    alert1.reload
+    alert2.reload
+    assert_not_nil alert1.last_notified_at
+    assert_nil alert2.last_notified_at
+    assert_equal false, alert1.active
+    assert_equal true, alert2.active
   end
 
   private

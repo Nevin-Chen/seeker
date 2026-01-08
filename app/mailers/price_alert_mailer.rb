@@ -1,5 +1,9 @@
 class PriceAlertMailer < ApplicationMailer
-  default from: ENV["GMAIL_USERNAME"]
+  default from: if Rails.env.test?
+                  "test@example.com"
+                else
+                  ENV["GMAIL_USERNAME"]
+                end
 
   def price_dropped(price_alert)
     @price_alert = price_alert
