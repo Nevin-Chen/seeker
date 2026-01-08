@@ -225,7 +225,10 @@ class ProductScraper
     triggered = @product.price_alerts.active.triggered
 
     triggered.find_each do |alert|
-      alert.update!(last_notified_at: Time.current, active: false)
+      if alert.should_notify?
+        PriceAlertMailer.price_dropped(alert).deliver_later
+        alert.update(last_notified_at: Time.current, active: false)
+      end
     end
   end
 

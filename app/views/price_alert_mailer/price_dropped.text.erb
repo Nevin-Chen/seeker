@@ -1,0 +1,18 @@
+PRICE DROP ALERT!
+
+<%= @product.name %>
+
+Current Price: $<%= number_with_precision(@product.current_price, precision: 2) %>
+Your Target: $<%= number_with_precision(@price_alert.target_price, precision: 2) %>
+
+<% savings = @price_alert.target_price - @product.current_price %>
+<% if savings > 0 %>
+You're saving $<%= number_with_precision(savings, precision: 2) %> below your target!
+<% end %>
+
+Great news! The price has dropped to $<%= number_with_precision(@product.current_price, precision: 2) %>, which is at or below your target price.
+
+View product: <%= product_url(@product) %>
+
+---
+Manage your alerts: <%= price_alerts_url %>
