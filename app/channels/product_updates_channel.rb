@@ -2,9 +2,12 @@ class ProductUpdatesChannel < ApplicationCable::Channel
   def subscribed
     product_id = params[:product_id]
 
-    reject if product_id.blank?
+    if product_id.blank? || current_user.blank?
+      reject
+      return
+    end
 
-    channel_name = "product_updates_#{product_id}"
+    channel_name = "user_#{current_user.id}_product_#{product_id}"
 
     stream_from channel_name do |message|
       transmit message

@@ -1,3 +1,4 @@
+<%= turbo_stream_from "user_#{Current.user.id}_product_#{@product.id}" %>
 <div data-product-id="<%= @product.id %>">
 <div class="max-w-3xl mx-auto">
   <div data-controller="modal">

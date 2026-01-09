@@ -14,11 +14,25 @@
 
 <% if @price_alerts.any? %>
   <%
-    pending = @price_alerts.select { |a| a.product.check_status == 'pending' }
-    errors = @price_alerts.select { |a| !pending.include?(a) && a.product.check_status.in?(%w[blocked error]) }
-    target_reached = @price_alerts.select { |a| !pending.include?(a) && !errors.include?(a) && a.price_dropped? }
-    paused = @price_alerts.select { |a| !pending.include?(a) && !errors.include?(a) && !target_reached.include?(a) && !a.active? }
-    active_alerts = @price_alerts.select { |a| !pending.include?(a) && !errors.include?(a) && !target_reached.include?(a) && !paused.include?(a) && a.active? }
+    pending = []
+    errors = []
+    target_reached = []
+    paused = []
+    active_alerts = []
+
+    @price_alerts.each do |alert|
+      if alert.product.check_status == 'pending'
+        pending << alert
+      elsif alert.product.check_status.in?(%w[blocked error])
+        errors << alert
+      elsif alert.price_dropped?
+        target_reached << alert
+      elsif !alert.active?
+        paused << alert
+      else
+        active_alerts << alert
+      end
+    end
   %>
 
   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
