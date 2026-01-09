@@ -233,18 +233,18 @@ class ProductScraper
   end
 
   def broadcast_price_update
-    price_alert = @product.price_alerts.first
-
-    ActionCable.server.broadcast(
-      "product_updates_#{@product.id}",
-      {
-        target: "product_#{@product.id}_details",
-        html: ApplicationController.render(
-          partial: "products/product_details",
-          locals: { product: @product.reload, price_alert: price_alert }
-        )
-      }
-    )
+    @product.price_alerts.includes(:user).find_each do |price_alert|
+      ActionCable.server.broadcast(
+        "user_#{price_alert.user_id}_product_#{@product.id}",
+        {
+          target: "product_#{@product.id}_details",
+          html: ApplicationController.render(
+            partial: "products/product_details",
+            locals: { product: @product.reload, price_alert: price_alert }
+          )
+        }
+      )
+    end
   rescue => e
     Rails.logger.error "Failed to broadcast price update for product #{@product.id}: #{e.message}"
   end

@@ -19,7 +19,7 @@
 
     <div data-inline-edit-target="display" class="<%= 'hidden' if has_error %>">
       <p class="text-3xl font-semibold text-gray-600">
-        $<%= number_with_precision(price_alert.target_price_was, precision: 2) %>
+        $<%= number_with_precision(price_alert.target_price, precision: 2) %>
       </p>
       <% if price_alert.price_dropped? %>
         <p class="text-xs text-green-600 font-medium mt-2 inline-flex items-center gap-1">
@@ -43,7 +43,7 @@
                 required: true,
                 data: {
                   inline_edit_target: "input",
-                  original_value: price_alert.target_price_was,
+                  original_value: price_alert.target_price,
                   action: "keydown->inline-edit#handleKeydown"
                 },
                 class: "w-full rounded-lg border #{has_error ? 'border-red-500' : 'border-gray-300'} text-xl px-3 py-2 focus:outline-none transition" %>
