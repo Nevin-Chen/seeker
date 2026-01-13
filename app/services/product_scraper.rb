@@ -76,7 +76,15 @@ class ProductScraper
     html = nil
 
     Playwright.create(playwright_cli_executable_path: playwright_path) do |playwright|
-      playwright.chromium.launch(headless: true) do |browser|
+      playwright.chromium.launch(
+        headless: true,
+        args: [
+          "--no-sandbox",
+          "--disable-setuid-sandbox",
+          "--disable-dev-shm-usage",
+          "--single-process"
+        ]
+      ) do |browser|
         context = browser.new_context(
           viewport: { width: 1920, height: 1080 }
         )
