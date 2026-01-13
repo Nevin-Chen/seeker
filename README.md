@@ -7,6 +7,7 @@ A Rails 8 price tracking application that monitors product prices from retailers
 ## Links
 
 - [Deploy](https://seeker-wls9.onrender.com/)
+- [Demo Video](https://res.cloudinary.com/dkdkftvsq/video/upload/v1768259886/seeker_fxqwcf.mp4)
 
 ## Features
 
