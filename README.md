@@ -93,6 +93,23 @@ A Rails 8 price tracking application that monitors product prices from retailers
    http://localhost:3000
    ```
 
+## Cron Setup
+   ```bash
+   # Generate secret
+   rails secret
+
+   # Add to .env
+   WEBHOOK_SECRET=GENERATED_SECRET
+   ```
+
+### Example Cron Schedule
+Scheduled cron job in 6 hour intervals:
+
+URL: http://localhost:3000/webhooks/scrape_products?token=GENERATED_SECRET
+Method: POST
+Cron Scheduling Syntax: `(0 */6 * * *)`
+
+[GitLab Docs on cron scheduling](https://docs.gitlab.com/topics/cron/)
 
 ## Testing
 
@@ -108,20 +125,17 @@ DB_PORT=5432
 DB_USERNAME=POSTGRESQL_USERNAME
 DB_PASSWORD=POSTGRESQL_PASSWORD
 DB_NAME=POSTGRESQL_DB_NAME
+WEBHOOK_SECRET=GENERATED_SECRET
 ```
 
 ## Features Roadmap
 
-- Add cron jobs to periodically scrape active alerts
-- Price trend predictions using historical data
 - Historical charts
-- Bulk alert import from CSV
 - Browser extension
-- SMS notifications
 
 ## Notes
 
-The goal of this project was to take full advantange of Rails 8 suite of "Solid" features:
+The goal of this project was to take full advantange of Rails 8 suite of Solid features:
 - **Solid Queue**: Background job processing
 - **Solid Cache**: Database caching layer
 - **Solid Cable**: Action Cable adapter for WebSockets

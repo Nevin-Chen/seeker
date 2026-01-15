@@ -21,5 +21,7 @@ Rails.application.routes.draw do
     end
   end
 
+  post "/webhooks/scrape_products", to: "webhooks#scrape_products"
+
   get "/health", to: "health#show"
 end
