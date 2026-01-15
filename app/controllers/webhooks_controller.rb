@@ -3,7 +3,8 @@ class WebhooksController < ApplicationController
   skip_forgery_protection
 
   def scrape_products
-    authenticate_webhook
+    return render json: { error: "Unauthorized" }, status: :unauthorized unless authenticated?
+
 
     products = Product.needs_check
                       .joins(:price_alerts)
@@ -23,9 +24,7 @@ class WebhooksController < ApplicationController
 
   private
 
-  def authenticate_webhook
-    unless params[:token] == ENV["WEBHOOK_SECRET"]
-      render json: { error: "Unauthorized" }, status: :unauthorized
-    end
+  def authenticated?
+    params[:token] == ENV["WEBHOOK_SECRET"]
   end
 end
