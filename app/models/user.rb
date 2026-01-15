@@ -12,6 +12,14 @@ class User < ApplicationRecord
                             uniqueness: true,
                             format: { with: URI::MailTo::EMAIL_REGEXP }
 
+  validates :password,
+    length: { minimum: 8 },
+    format: {
+      with: /\A(?=.*[a-zA-Z])(?=.*\d).*\z/,
+      message: "must include at least one letter and one number"
+    },
+    if: -> { password.present? }
+
   validates :role, inclusion: { in: %w[user admin] }
 
   generates_token_for :password_reset, expires_in: 15.minutes do

@@ -20,4 +20,6 @@ Rails.application.routes.draw do
       patch :toggle
     end
   end
+
+  get "/health", to: "health#show"
 end
